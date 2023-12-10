@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
-import { io } from 'socket.io-client';
+import { useState, useEffect, useContext } from 'react'
+import Feed from '../components/Feed';
+import { SocketContext } from '../socketConfig.jsx';
 
 const DraftPage = () => {
-    const [socket, setSocket] = useState();
+    const socket = useContext(SocketContext);
+
     const [timer, setTimer] = useState();
     const [isRunnning, setIsRunning] = useState(false);
     const [player, setPlayer] = useState({
@@ -21,17 +23,13 @@ const DraftPage = () => {
         "TO": ""
     });
 
-    //Connect socket.io
     useEffect(() => {
-        const s = io('http://localhost:3000');
-        setSocket(s);
+        if (socket === null) return;
 
-        return () => {
-            s.disconnect();
-        }
-    }, []);
+        socket.emit('joinedRoom');
 
-    //handle draft sockets
+    }, [socket]);
+
     useEffect(() => {
         if (socket == null) return;
 
@@ -51,6 +49,7 @@ const DraftPage = () => {
         socket.emit("start-timer");
         setIsRunning(true);
     }
+
     return (
         <div>
             {!isRunnning ? (
@@ -77,6 +76,7 @@ const DraftPage = () => {
                     </span>
                 </>)
             }
+            <Feed socket={socket} />
         </div>
     )
 }
