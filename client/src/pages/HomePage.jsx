@@ -1,22 +1,10 @@
-import { useState, useEffect } from "react";
-import { io } from "socket.io-client";
+import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-    const [socket, setSocket] = useState();
-
-    //Connect socket.io
-    useEffect(() => {
-        const s = io('http://localhost:3000');
-        setSocket(s);
-
-        return () => {
-            s.disconnect();
-        }
-    }, []);
+    const navigate = useNavigate();
 
     const handleClick = () => {
-        socket.emit('joinedRoom');
-
+        navigate('/draft-room');
     }
 
     return (

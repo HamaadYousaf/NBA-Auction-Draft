@@ -3,7 +3,7 @@ import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from 'cors';
 import loginRoute from './routes/loginRoute.js';
-import { draftTimer } from './controllers/draftController.js';
+import { draftTimer, draftFeed } from './controllers/draftController.js';
 
 const app = express();
 const httpServer = createServer(app);
@@ -23,6 +23,9 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', socket => {
+    socket.on('joinedRoom', () => {
+        draftFeed(socket);
+    });
     socket.on('start-timer', () => {
         draftTimer(socket);
     });
