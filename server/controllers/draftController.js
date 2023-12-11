@@ -2,7 +2,6 @@ import { createRequire } from 'node:module';
 const require = createRequire(import.meta.url);
 const players = require('../../config/players.json');
 
-
 export const draftTimer = async (socket) => {
     for (let i = 1; i < 6; i++) {
         let time = 10;
@@ -19,8 +18,10 @@ export const draftTimer = async (socket) => {
     socket.emit('draftComplete');
 }
 
-export const draftFeed = (socket) => {
-    socket.emit('feed', `${socket.id} has joined the draft room`, "3:00PM");
+export const draftFeed = (socket, room) => {
+    socket.join(room);
+
+    socket.to(room).emit('feed', `${socket.id} has joined the draft room`, "3:00PM");
 }
 
 async function sleep(ms) {

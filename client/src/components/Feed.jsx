@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react'
 import { SocketContext } from '../socketConfig';
+import { v4 as uuidv4 } from 'uuid';
 
 const Feed = () => {
     const socket = useContext(SocketContext);
@@ -35,7 +36,7 @@ const Feed = () => {
         <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
             {
                 feed.map((log) => {
-                    return (<span key={log.msg}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
+                    return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
                 })
             }
         </div>

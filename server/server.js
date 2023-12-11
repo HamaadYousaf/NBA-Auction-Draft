@@ -23,8 +23,8 @@ const io = new Server(httpServer, {
 });
 
 io.on('connection', socket => {
-    socket.on('joinedRoom', () => {
-        draftFeed(socket);
+    socket.on('joinedRoom', (room) => {
+        draftFeed(socket, room);
     });
     socket.on('start-timer', () => {
         draftTimer(socket);
