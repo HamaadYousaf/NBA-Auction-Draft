@@ -1,27 +1,22 @@
-import fs from 'fs';
+import { createRequire } from 'node:module';
+const require = createRequire(import.meta.url);
+const users = require('../../config/users.json');
 
 const postLogin = (req, res) => {
-    fs.readFile('../config/users.json', 'utf-8', (err, data) => {
-        if (err) {
-            console.log(err);
-        }
-        else {
-            const dataParsed = JSON.parse(data);
-            const writeData = {
-                ...dataParsed,
-                [req.body.username]: {
-                    "password": req.body.password
-                }
-            }
-            fs.writeFile('../config/users.json', JSON.stringify(writeData, null, 2), (err) => {
-                if (err) {
-                    console.log(err);
-                }
-            });
-        }
-    })
+    const username = req.body.username;
+    const password = req.body.password;
 
-    res.status(200).json({ sucess: true, data: "loggin in" })
+    if (username in users && password === users[username].password) {
+
+        if (req.session.user === undefined) {
+            req.session.user = username;
+            console.log("Express Session: ");
+            console.log(req.session);
+        }
+        return res.status(200).json({ sucess: true, data: "loggin in" })
+    }
+
+    return res.status(401).json({ sucess: false, data: "unauthorized" })
 }
 
 export default postLogin;

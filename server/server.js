@@ -4,16 +4,10 @@ import { Server } from "socket.io";
 import cors from 'cors';
 import loginRoute from './routes/loginRoute.js';
 import { draftTimer, draftFeed } from './controllers/draftController.js';
+import { sessionMiddleware, wrap } from './middleware/sessionMiddleware.js';
 
 const app = express();
 const httpServer = createServer(app);
-
-app.use(cors());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-//Routes
-app.use('/login', loginRoute);
 
 const io = new Server(httpServer, {
     cors: {
@@ -21,6 +15,15 @@ const io = new Server(httpServer, {
         methods: ['GET', 'POST']
     }
 });
+
+app.use(cors());
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(sessionMiddleware);
+io.use(wrap(sessionMiddleware));
+
+//Routes
+app.use('/login', loginRoute);
 
 io.on('connection', socket => {
     socket.on('joinedRoom', (room) => {
