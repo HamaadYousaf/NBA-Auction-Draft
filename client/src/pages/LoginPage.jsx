@@ -20,6 +20,7 @@ const LoginPage = () => {
                 }
             })
             .catch(function (error) {
+                console.log("Invalid credentials");
                 console.log(error);
             });
     }
