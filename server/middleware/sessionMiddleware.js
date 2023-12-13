@@ -1,13 +1,13 @@
 import session from 'express-session';
+import { config } from 'dotenv';
+config({ path: '../.env' })
+
 const memoryStore = new session.MemoryStore();
 
 export const sessionMiddleware = session({
-    secret: "secret123",
+    secret: process.env.SECRET_KEY,
     resave: true,
     cookie: { maxAge: 1000 * 60 * 60 * 12 },
     saveUninitialized: false,
     store: memoryStore
 })
-
-export const wrap = expressMiddleware => (socket, next) =>
-    expressMiddleware(socket.request, {}, next);

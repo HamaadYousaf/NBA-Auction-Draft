@@ -2,12 +2,16 @@ import express from 'express';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from 'cors';
+import mongoose from 'mongoose';
+import { config } from 'dotenv';
+config({ path: '../.env' })
 import loginRoute from './routes/loginRoute.js';
 import { draftTimer, draftFeed } from './controllers/draftController.js';
-import { sessionMiddleware, wrap } from './middleware/sessionMiddleware.js';
+import { sessionMiddleware } from './middleware/sessionMiddleware.js';
 
 const app = express();
 const httpServer = createServer(app);
+const PORT = process.env.PORT;
 
 const io = new Server(httpServer, {
     cors: {
@@ -20,7 +24,7 @@ app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 app.use(sessionMiddleware);
-io.use(wrap(sessionMiddleware));
+io.engine.use(sessionMiddleware);
 
 //Routes
 app.use('/login', loginRoute);
@@ -34,6 +38,14 @@ io.on('connection', socket => {
     });
 })
 
-httpServer.listen(3000, () => {
-    console.log(`server is listening on port 3000`);
-});
+mongoose.connect(process.env.MONGO_URL)
+    .then(() => {
+        console.log("Connected to database");
+
+        httpServer.listen(PORT, () => {
+            console.log(`server is listening on port: ${PORT}...`);
+        });
+    })
+    .catch((err) => {
+        console.log(err);
+    });

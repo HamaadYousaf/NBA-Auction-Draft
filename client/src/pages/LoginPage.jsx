@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 const LoginPage = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-
     const navigate = useNavigate();
 
     const handleSubmit = (event) => {
@@ -14,14 +13,15 @@ const LoginPage = () => {
         let user = { username: username, password: password };
 
         axios.post('http://localhost:3000/login', user)
-            .then(function (response) {
-                if (response.status === 200) {
+            .then(function (res) {
+                if (res.status === 200) {
                     navigate('/home');
                 }
             })
             .catch(function (error) {
-                console.log("Invalid credentials");
-                console.log(error);
+                if (error.response.status === 401) {
+                    console.log("Invalid credentials");
+                }
             });
     }
 
