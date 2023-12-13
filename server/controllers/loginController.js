@@ -1,22 +1,27 @@
-import { createRequire } from 'node:module';
-const require = createRequire(import.meta.url);
-const users = require('../../config/users.json');
+import { User } from '../models/userModel.js'
 
-const postLogin = (req, res) => {
+const postLogin = async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
-    if (username in users && password === users[username].password) {
+    try {
+        const newUser = await User.findOne({ "username": username });
 
-        if (req.session.user === undefined) {
-            req.session.user = username;
-            console.log("Express Session: ");
-            console.log(req.session);
+        if (newUser) {
+            if (newUser.password === password) {
+                req.session.user = newUser.username;
+
+                return res.status(200).json({ sucess: true, data: newUser.username });
+            } else {
+                return res.status(401).json({ sucess: false, msg: "Invalid credentials" });
+            }
         }
-        return res.status(200).json({ sucess: true, data: "loggin in" })
+    } catch (error) {
+        console.log(error)
     }
 
-    return res.status(401).json({ sucess: false, data: "unauthorized" })
+    return res.status(200).json({ sucess: true, data: "loggin in" })
+
 }
 
 export default postLogin;

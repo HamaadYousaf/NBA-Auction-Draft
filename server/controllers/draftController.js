@@ -2,8 +2,6 @@ import { createRequire } from 'node:module';
 const players = createRequire(import.meta.url)('../../config/players.json');
 
 export const draftTimer = async (socket) => {
-    console.log("Socket Session: ");
-    console.log(socket.request.session);
     for (let i = 1; i < 6; i++) {
         let time = 10;
         let player = players[`player${i}`];
