@@ -9,7 +9,6 @@ export const postLogin = async (req, res) => {
 
         if (currUser) {
             if (currUser.password === password) {
-                req.session.user = currUser.username;
 
                 return res.status(200).json({ sucess: true, data: currUser.username });
             } else {
@@ -32,8 +31,6 @@ export const postRegiser = async (req, res) => {
             "username": username,
             "password": password
         });
-
-        req.session.user = currUser.username;
 
         return res.status(200).json({ sucess: true, data: currUser.username });
     } catch (error) {

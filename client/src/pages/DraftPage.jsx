@@ -12,16 +12,7 @@ const DraftPage = () => {
         "name": "",
         "image": "",
         "team": "",
-        "pos": "",
-        "FG": "",
-        "FT": "",
-        "3PM": "",
-        "PTS": "",
-        "TREB": "",
-        "AST": "",
-        "STL": "",
-        "BLK": "",
-        "TO": ""
+        "pos": ""
     });
 
     useEffect(() => {
@@ -63,19 +54,11 @@ const DraftPage = () => {
                 <>
                     <span>Timer = {timer}</span>
                     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <span>Player = {player.name}&nbsp;&nbsp;&nbsp;</span>
+                    <span><img src={player.image} alt={player.name}></img></span>
+                    <span>Player: {player.name}&nbsp;&nbsp;&nbsp;</span>
                     <span>
-                        {player.team}&nbsp;
-                        {player.pos}&nbsp;
-                        {player.FG}&nbsp;
-                        {player.FT}&nbsp;
-                        {player['3PM']}&nbsp;
-                        {player.PTS}&nbsp;
-                        {player.TREB}&nbsp;
-                        {player.AST}&nbsp;
-                        {player.STL}&nbsp;
-                        {player.BLK}&nbsp;
-                        {player.TO}&nbsp;
+                        Team: {player.team}&nbsp;
+                        Position: {player.pos}&nbsp;
                     </span>
                 </>)
             }
