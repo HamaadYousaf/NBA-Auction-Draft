@@ -1,27 +1,43 @@
 import { User } from '../models/userModel.js'
 
-const postLogin = async (req, res) => {
+export const postLogin = async (req, res) => {
     const username = req.body.username;
     const password = req.body.password;
 
     try {
-        const newUser = await User.findOne({ "username": username });
+        const currUser = await User.findOne({ "username": username });
 
-        if (newUser) {
-            if (newUser.password === password) {
-                req.session.user = newUser.username;
+        if (currUser) {
+            if (currUser.password === password) {
+                req.session.user = currUser.username;
 
-                return res.status(200).json({ sucess: true, data: newUser.username });
+                return res.status(200).json({ sucess: true, data: currUser.username });
             } else {
                 return res.status(401).json({ sucess: false, msg: "Invalid credentials" });
             }
+        } else {
+            return res.status(401).json({ sucess: false, msg: "Invalid credentials" });
         }
     } catch (error) {
         console.log(error)
     }
-
-    return res.status(200).json({ sucess: true, data: "loggin in" })
-
 }
 
-export default postLogin;
+export const postRegiser = async (req, res) => {
+    const username = req.body.username;
+    const password = req.body.password;
+
+    try {
+        const currUser = await User.create({
+            "username": username,
+            "password": password
+        });
+
+        req.session.user = currUser.username;
+
+        return res.status(200).json({ sucess: true, data: currUser.username });
+    } catch (error) {
+        console.log(error)
+    }
+    return res.status(404).json({ sucess: false, data: "error creating account" });
+}

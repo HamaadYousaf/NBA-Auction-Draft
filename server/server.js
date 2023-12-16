@@ -4,14 +4,14 @@ import { Server } from "socket.io";
 import cors from 'cors';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
-config({ path: '../.env' })
-import loginRoute from './routes/loginRoute.js';
+import { postLogin, postRegiser } from './controllers/loginController.js';
 import { draftTimer, draftFeed } from './controllers/draftController.js';
 import { sessionMiddleware } from './middleware/sessionMiddleware.js';
+config({ path: '../.env' })
 
 const app = express();
 const httpServer = createServer(app);
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 3000;
 
 const io = new Server(httpServer, {
     cors: {
@@ -27,7 +27,8 @@ app.use(sessionMiddleware);
 io.engine.use(sessionMiddleware);
 
 //Routes
-app.use('/login', loginRoute);
+app.post('/login', postLogin);
+app.post('/register', postRegiser);
 
 io.on('connection', socket => {
     socket.on('joinedRoom', (room) => {
