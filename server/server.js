@@ -6,7 +6,6 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { postLogin, postRegiser } from './controllers/loginController.js';
 import { draftTimer, draftFeed } from './controllers/draftController.js';
-import { sessionMiddleware } from './middleware/sessionMiddleware.js';
 config({ path: '../.env' })
 
 const app = express();
@@ -23,8 +22,6 @@ const io = new Server(httpServer, {
 app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(sessionMiddleware);
-io.engine.use(sessionMiddleware);
 
 //Routes
 app.post('/login', postLogin);
