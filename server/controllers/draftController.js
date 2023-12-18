@@ -1,26 +1,25 @@
 import { createRequire } from 'node:module';
+import { getHost } from './userController.js';
 const players = createRequire(import.meta.url)('../../config/players.json');
 
-export const draftTimer = async (socket) => {
-    for (let i = 1; i < 6; i++) {
-        let time = 10;
-        let player = players[`player${i}`];
-        socket.emit('getPlayer', player);
-        socket.emit('countdown', time);
+export const draftTimer = async (socket, io) => {
+    const host = getHost();
 
-        for (let j = 0; j < 11; j++) {
-            socket.emit('countdown', time--);
-            await sleep(1000);
+    if (socket.id === host) {
+        for (let i = 1; i < 6; i++) {
+            let time = 10;
+            let player = players[`player${i}`];
+            io.to('draft-room').emit('get-player', player);
+            io.to('draft-room').emit('timer', time);
+
+            for (let j = 0; j < 11; j++) {
+                io.to('draft-room').emit('timer', time--);
+                await sleep(1000);
+            }
+            await sleep(2000);
         }
-        await sleep(2000);
+        io.to('draft-room').emit('draft-complete');
     }
-    socket.emit('draftComplete');
-}
-
-export const draftFeed = (socket, room) => {
-    socket.join(room);
-
-    socket.to(room).emit('feed', `${socket.id} has joined the draft room`, "3:00PM");
 }
 
 async function sleep(ms) {
