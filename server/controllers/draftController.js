@@ -5,22 +5,21 @@ export const draftTimer = async (socket) => {
     for (let i = 1; i < 6; i++) {
         let time = 10;
         let player = players[`player${i}`];
-        socket.emit('getPlayer', player);
-        socket.emit('countdown', time);
+        socket.emit('get-player', player);
+        socket.emit('timer', time);
 
         for (let j = 0; j < 11; j++) {
-            socket.emit('countdown', time--);
+            socket.emit('timer', time--);
             await sleep(1000);
         }
         await sleep(2000);
     }
-    socket.emit('draftComplete');
+    socket.emit('draft-complete');
 }
 
 export const draftFeed = (socket, room) => {
     socket.join(room);
-
-    socket.to(room).emit('feed', `${socket.id} has joined the draft room`, "3:00PM");
+    socket.broadcast.to('draft-room').emit('feed', `${socket.id} has joined the draft room`, "3:00PM");
 }
 
 async function sleep(ms) {

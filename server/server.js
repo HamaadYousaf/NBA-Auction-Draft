@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { postLogin, postRegiser } from './controllers/loginController.js';
 import { draftTimer, draftFeed } from './controllers/draftController.js';
+import { joinUser, getUsersInRoom, leaveUser } from './controllers/userController.js';
 config({ path: '../.env' })
 
 const app = express();
@@ -28,12 +29,26 @@ app.post('/login', postLogin);
 app.post('/register', postRegiser);
 
 io.on('connection', socket => {
-    socket.on('joinedRoom', (room) => {
+    socket.on('joined-room', (room) => {
+        joinUser(socket);
+        const num = getUsersInRoom();
+        socket.broadcast.to(room).emit('get-num-users', num);
+        socket.emit('get-num-users', num);
         draftFeed(socket, room);
     });
+
     socket.on('start-timer', () => {
         draftTimer(socket);
     });
+
+    socket.on('disconnect', () => {
+        socket.broadcast.to('draft-room').emit('feed', `${socket.id} has left the draft room`, "3:00PM");
+        socket.leave('draft-room');
+        const num = leaveUser(socket);
+        socket.broadcast.to('draft-room').emit('get-num-users', num);
+        socket.emit('get-num-users', num);
+        socket.removeAllListeners();
+    })
 })
 
 mongoose.connect(process.env.MONGO_URL)
@@ -41,7 +56,7 @@ mongoose.connect(process.env.MONGO_URL)
         console.log("Connected to database");
 
         httpServer.listen(PORT, () => {
-            console.log(`server is listening on port: ${PORT}...`);
+            console.log(`server is listening on port ${PORT}...`);
         });
     })
     .catch((err) => {

@@ -7,6 +7,7 @@ const DraftPage = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
     const [timer, setTimer] = useState();
+    const [numUsers, setNumUsers] = useState();
     const [isRunning, setIsRunning] = useState(false);
     const [player, setPlayer] = useState({
         "name": "",
@@ -18,26 +19,28 @@ const DraftPage = () => {
     useEffect(() => {
         if (socket === null) return;
 
-        socket.emit('joinedRoom', 'draftRoom');
+        socket.emit('joined-room', 'draft-room');
     }, [socket]);
 
     useEffect(() => {
         if (socket == null) return;
 
-        socket.on('countdown', (time) => { setTimer(time) });
-        socket.on('getPlayer', (player) => { setPlayer(player) });
-        socket.on('draftComplete', () => {
+        socket.on('timer', (time) => setTimer(time));
+        socket.on('get-player', (player) => setPlayer(player));
+        socket.on('get-num-users', (num) => setNumUsers(num));
+        socket.on('draft-complete', () => {
             setIsRunning(false);
             navigate('/home');
         });
 
         return () => {
-            socket.off('countdown');
-            socket.off('getPlayer');
-            socket.off('draftComplete');
+            socket.off('timer');
+            socket.off('get-player');
+            socket.off('draft-complete');
+            socket.off('get-num-users')
 
         }
-    }, [socket, timer, player, navigate]);
+    }, [socket, timer, player, numUsers, navigate]);
 
     const handleClick = () => {
         socket.emit("start-timer");
@@ -50,6 +53,7 @@ const DraftPage = () => {
                 <>
                     <span>Waiting for host to begin draft</span>
                     <button onClick={handleClick}>Start</button>
+                    <span>Players in draft room = {numUsers}</span>
                 </>) : (
                 <>
                     <span>Timer = {timer}</span>
