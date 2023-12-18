@@ -1,4 +1,5 @@
 const users = [];
+let host = null;
 
 export const joinUser = (socket) => {
     users.push(socket.id);
@@ -16,4 +17,12 @@ export const leaveUser = (socket) => {
     }
 
     return users.length;
+}
+
+export const setHost = (socket) => {
+    host = socket.id;
+}
+
+export const getHost = () => {
+    return host;
 }
