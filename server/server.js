@@ -5,8 +5,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import { config } from 'dotenv';
 import { postLogin, postRegiser } from './controllers/loginController.js';
-import { draftTimer } from './controllers/draftController.js';
-import { joinUser, getUsersInRoom, leaveUser, setHost } from './controllers/userController.js';
+import { draftTimer } from './utils/draftUtils.js';
+import { joinUser, getUsersInRoom, leaveUser, setHost } from './utils/userUtils.js';
 config({ path: '../.env' })
 
 const app = express();
