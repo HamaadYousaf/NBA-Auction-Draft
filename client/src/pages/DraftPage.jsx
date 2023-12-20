@@ -8,56 +8,87 @@ const DraftPage = () => {
     const navigate = useNavigate();
 
     let isHost = useRef(false);
-    const [timer, setTimer] = useState();
+    const [timer, setTimer] = useState(localStorage.getItem('time') || '');
     const [numUsers, setNumUsers] = useState();
-    const [isRunning, setIsRunning] = useState(false);
-    const [player, setPlayer] = useState({
-        "name": "",
-        "image": "",
-        "team": "",
-        "pos": ""
-    });
-    const [feed, setFeed] = useState([
+    const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
+    const [player, setPlayer] = useState(
+        JSON.parse(localStorage.getItem('player')) ||
         {
-            "msg": "Welcome to the draft room",
-            "time": "3:00PM"
-        },
-    ]);
+            "name": "",
+            "image": "",
+            "team": "",
+            "pos": ""
+        });
+    const [feed, setFeed] = useState(
+        JSON.parse(localStorage.getItem('feed')) ||
+        [
+            {
+                "msg": "Welcome to the draft room",
+                "time": "3:00PM"
+            },
+        ]);
+
 
     useEffect(() => {
-        if (socket === null) return;
+        if (!sessionStorage.getItem('logged-in')) {
+            navigate('/login');
+        }
+    }, [navigate])
 
-        socket.emit('joined-room', 'draft-room');
+    useEffect(() => {
+        if (sessionStorage.getItem('logged-in')) {
+            if (socket === null) return;
+
+            socket.emit('joined-room', 'draft-room');
+        }
     }, [socket]);
 
     useEffect(() => {
-        if (socket == null) return;
+        if (sessionStorage.getItem('logged-in')) {
+            if (socket == null) return;
 
-        socket.on('timer', (time) => setTimer(time));
-        socket.on('get-player', (player) => setPlayer(player));
-        socket.on('get-num-users', (num) => setNumUsers(num));
-        socket.on('run-draft', () => setIsRunning(true));
-        socket.on('feed', (msg, time) => {
-            const newFeed = [
-                ...feed,
-                {
-                    "msg": msg,
-                    "time": time
+            socket.on('get-num-users', (num) => setNumUsers(num));
 
-                }
-            ];
-            setFeed(newFeed);
-        })
+            socket.on('timer', (time) => {
+                localStorage.setItem('time', time);
+                setTimer(time)
+            });
 
-        if (numUsers === 1) {
-            isHost.current = true;
-            socket.emit('isHost');
+            socket.on('get-player', (player) => {
+                localStorage.setItem('player', JSON.stringify(player));
+                setPlayer(player)
+            });
+
+
+            socket.on('run-draft', () => {
+                localStorage.setItem('running', true);
+                setIsRunning(true)
+            });
+
+            socket.on('feed', (msg, time) => {
+                const newFeed = [
+                    ...feed,
+                    {
+                        "msg": msg,
+                        "time": time
+
+                    }
+                ];
+                localStorage.setItem('feed', JSON.stringify(newFeed));
+                setFeed(newFeed);
+            })
+
+            if (numUsers === 1) {
+                isHost.current = true;
+                socket.emit('isHost');
+            }
+
+            socket.on('draft-complete', () => {
+                setIsRunning(false);
+                localStorage.clear();
+                navigate('/home');
+            });
         }
-
-        socket.on('draft-complete', () => {
-            setIsRunning(false);
-            navigate('/home');
-        });
 
         return () => {
             socket.removeAllListeners();
@@ -67,6 +98,7 @@ const DraftPage = () => {
     const handleClick = () => {
         socket.emit("start-timer");
         setIsRunning(true);
+        localStorage.setItem('running', true);
     }
 
     return (

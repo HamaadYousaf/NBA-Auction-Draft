@@ -19,6 +19,7 @@ const RegisterPage = () => {
             axios.post('http://localhost:3000/register', user)
                 .then(function (res) {
                     if (res.status === 200) {
+                        sessionStorage.setItem('logged-in', username);
                         navigate('/home');
                     }
                 })
