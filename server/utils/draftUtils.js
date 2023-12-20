@@ -1,5 +1,5 @@
 import { createRequire } from 'node:module';
-import { getHost } from './userController.js';
+import { getHost } from './userUtils.js';
 const players = createRequire(import.meta.url)('../../config/players.json');
 
 export const draftTimer = async (socket, io) => {
