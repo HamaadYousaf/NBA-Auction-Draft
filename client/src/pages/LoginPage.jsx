@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
 
@@ -8,6 +8,10 @@ const LoginPage = () => {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        localStorage.clear();
+    }, [])
+
     const handleSubmit = (event) => {
         event.preventDefault();
 
@@ -16,6 +20,7 @@ const LoginPage = () => {
         axios.post('http://localhost:3000/login', user)
             .then(function (res) {
                 if (res.status === 200) {
+                    sessionStorage.setItem('logged-in', username);
                     navigate('/home');
                 }
             })

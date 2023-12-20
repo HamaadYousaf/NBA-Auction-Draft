@@ -28,55 +28,67 @@ const DraftPage = () => {
             },
         ]);
 
+
     useEffect(() => {
-        if (socket === null) return;
-        socket.emit('joined-room', 'draft-room');
+        if (!sessionStorage.getItem('logged-in')) {
+            navigate('/login');
+        }
+    }, [navigate])
+
+    useEffect(() => {
+        if (sessionStorage.getItem('logged-in')) {
+            if (socket === null) return;
+
+            socket.emit('joined-room', 'draft-room');
+        }
     }, [socket]);
 
     useEffect(() => {
-        if (socket == null) return;
+        if (sessionStorage.getItem('logged-in')) {
+            if (socket == null) return;
 
-        socket.on('get-num-users', (num) => setNumUsers(num));
+            socket.on('get-num-users', (num) => setNumUsers(num));
 
-        socket.on('timer', (time) => {
-            localStorage.setItem('time', time);
-            setTimer(time)
-        });
+            socket.on('timer', (time) => {
+                localStorage.setItem('time', time);
+                setTimer(time)
+            });
 
-        socket.on('get-player', (player) => {
-            localStorage.setItem('player', JSON.stringify(player));
-            setPlayer(player)
-        });
+            socket.on('get-player', (player) => {
+                localStorage.setItem('player', JSON.stringify(player));
+                setPlayer(player)
+            });
 
 
-        socket.on('run-draft', () => {
-            localStorage.setItem('running', true);
-            setIsRunning(true)
-        });
+            socket.on('run-draft', () => {
+                localStorage.setItem('running', true);
+                setIsRunning(true)
+            });
 
-        socket.on('feed', (msg, time) => {
-            const newFeed = [
-                ...feed,
-                {
-                    "msg": msg,
-                    "time": time
+            socket.on('feed', (msg, time) => {
+                const newFeed = [
+                    ...feed,
+                    {
+                        "msg": msg,
+                        "time": time
 
-                }
-            ];
-            localStorage.setItem('feed', JSON.stringify(newFeed));
-            setFeed(newFeed);
-        })
+                    }
+                ];
+                localStorage.setItem('feed', JSON.stringify(newFeed));
+                setFeed(newFeed);
+            })
 
-        if (numUsers === 1) {
-            isHost.current = true;
-            socket.emit('isHost');
+            if (numUsers === 1) {
+                isHost.current = true;
+                socket.emit('isHost');
+            }
+
+            socket.on('draft-complete', () => {
+                setIsRunning(false);
+                localStorage.clear();
+                navigate('/home');
+            });
         }
-
-        socket.on('draft-complete', () => {
-            setIsRunning(false);
-            localStorage.clear();
-            navigate('/home');
-        });
 
         return () => {
             socket.removeAllListeners();
