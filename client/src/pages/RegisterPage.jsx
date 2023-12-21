@@ -16,7 +16,7 @@ const RegisterPage = () => {
         if (password === password2) {
             const user = { username, password };
 
-            axios.post('http://localhost:3000/register', user)
+            axios.post('http://localhost:3000/login/create-account', user)
                 .then(function (res) {
                     if (res.status === 200) {
                         sessionStorage.setItem('logged-in', username);

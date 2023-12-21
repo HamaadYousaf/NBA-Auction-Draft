@@ -28,7 +28,6 @@ const DraftPage = () => {
             },
         ]);
 
-
     useEffect(() => {
         if (!sessionStorage.getItem('logged-in')) {
             navigate('/login');
