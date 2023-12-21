@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
@@ -10,25 +10,37 @@ const RegisterPage = () => {
 
     const navigate = useNavigate();
 
+    useEffect(() => {
+        localStorage.clear();
+
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/login',)
+            .then(res => {
+                if (res.status === 200) {
+                    navigate('/home');
+                }
+            })
+            .catch(() => navigate('/register'));
+
+    }, [navigate])
+
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         if (password === password2) {
             const user = { username, password };
 
-            axios.post('http://localhost:3000/register', user)
-                .then(function (res) {
+            axios.post('http://localhost:3000/login/create-account', user)
+                .then(res => {
                     if (res.status === 200) {
-                        sessionStorage.setItem('logged-in', username);
                         navigate('/home');
                     }
                 })
-                .catch(function (error) {
-                    if (error.response.status === 401) {
-                        console.log("Invalid credentials");
+                .catch(error => {
+                    if (error.response.status === 404) {
+                        console.log("error creating account");
                     }
                 });
-
         } else {
             setLoginFailed(true);
         }

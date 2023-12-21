@@ -2,13 +2,15 @@ import express from 'express';
 import { createServer } from "http";
 import { Server } from "socket.io";
 import cors from 'cors';
-import mongoose from 'mongoose';
+import { connectDB } from './config/connectDB.js';
 import { config } from 'dotenv';
-import { postLogin, postRegiser } from './controllers/loginController.js';
-import { draftTimer } from './utils/draftUtils.js';
-import { joinUser, getUsersInRoom, leaveUser, setHost } from './utils/userUtils.js';
-config({ path: '../.env' })
+import { sessionMiddleware } from './middleware/session.js';
+import { socketMiddleware } from './middleware/socket.js';
+import draftRoutes from './routes/draftRoutes.js';
+import loginRoutes from './routes/loginRoutes.js';
+config({ path: '../.env' });
 
+connectDB();
 const app = express();
 const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
@@ -16,58 +18,24 @@ const PORT = process.env.PORT || 3000;
 const io = new Server(httpServer, {
     cors: {
         origin: 'http://localhost:5173',
-        methods: ['GET', 'POST']
+        credentials: true
     }
 });
 
-app.use(cors());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+app.use(sessionMiddleware);
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 
 //Routes
-app.post('/login', postLogin);
-app.post('/register', postRegiser);
+app.use('/login', loginRoutes);
+app.use('/draft', draftRoutes);
 
-io.on('connection', socket => {
-    socket.on('joined-room', (room) => {
-        socket.join('draft-room');
-        joinUser(socket);
-        socket.broadcast.to('draft-room').emit('feed', `${socket.id} has joined the draft room`, '3:00PM');
+socketMiddleware(io);
 
-        const num = getUsersInRoom();
-        socket.broadcast.to(room).emit('get-num-users', num);
-        socket.emit('get-num-users', num);
-    });
-
-    socket.on('isHost', () => {
-        setHost(socket);
-    })
-
-    socket.on('start-timer', () => {
-        socket.broadcast.to('draft-room').emit('run-draft');
-        io.to('draft-room').emit('feed', 'The host has started the draft', '3:00PM');
-        draftTimer(socket, io);
-    });
-
-    socket.on('disconnect', () => {
-        socket.leave('draft-room');
-        socket.broadcast.to('draft-room').emit('feed', `${socket.id} has left the draft room`, '3:00PM');
-
-        const num = leaveUser(socket);
-        socket.broadcast.to('draft-room').emit('get-num-users', num);
-        socket.emit('get-num-users', num);
-        socket.removeAllListeners();
-    })
-})
-
-mongoose.connect(process.env.MONGO_URL)
-    .then(() => {
-        console.log("Connected to database");
-
-        httpServer.listen(PORT, () => {
-            console.log(`server is listening on port ${PORT}...`);
-        });
-    })
-    .catch((err) => {
-        console.log(err);
-    });
+httpServer.listen(PORT, () => {
+    console.log(`Server is listening on port ${PORT}...`);
+});
