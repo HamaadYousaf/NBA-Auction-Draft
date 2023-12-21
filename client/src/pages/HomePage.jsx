@@ -1,13 +1,15 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios'
 
 const HomePage = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!sessionStorage.getItem('logged-in')) {
-            navigate('/login');
-        }
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/login',)
+            .catch(() => navigate('/login'));
+
     }, [navigate]);
 
     const handleClick = () => {

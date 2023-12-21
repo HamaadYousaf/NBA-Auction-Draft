@@ -2,12 +2,14 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
     let isHost = useRef(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [timer, setTimer] = useState(localStorage.getItem('time') || '');
     const [numUsers, setNumUsers] = useState();
     const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
@@ -29,21 +31,23 @@ const DraftPage = () => {
         ]);
 
     useEffect(() => {
-        if (!sessionStorage.getItem('logged-in')) {
-            navigate('/login');
-        }
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/login',)
+            .catch(() => navigate('/login'));
+
+        setIsLoggedIn(true);
     }, [navigate])
 
     useEffect(() => {
-        if (sessionStorage.getItem('logged-in')) {
+        if (isLoggedIn) {
             if (socket === null) return;
 
             socket.emit('joined-room', 'draft-room');
         }
-    }, [socket]);
+    }, [socket, isLoggedIn]);
 
     useEffect(() => {
-        if (sessionStorage.getItem('logged-in')) {
+        if (isLoggedIn) {
             if (socket == null) return;
 
             socket.on('get-num-users', (num) => setNumUsers(num));
@@ -57,7 +61,6 @@ const DraftPage = () => {
                 localStorage.setItem('player', JSON.stringify(player));
                 setPlayer(player)
             });
-
 
             socket.on('run-draft', () => {
                 localStorage.setItem('running', true);
@@ -92,7 +95,7 @@ const DraftPage = () => {
         return () => {
             socket.removeAllListeners();
         }
-    }, [socket, timer, player, numUsers, isRunning, feed, navigate]);
+    }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, navigate]);
 
     const handleClick = () => {
         socket.emit("start-timer");

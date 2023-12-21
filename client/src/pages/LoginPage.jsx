@@ -10,21 +10,31 @@ const LoginPage = () => {
 
     useEffect(() => {
         localStorage.clear();
-    }, [])
+
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/login',)
+            .then(res => {
+                if (res.status === 200) {
+                    navigate('/home');
+                }
+            })
+            .catch(() => navigate('/login'));
+
+    }, [navigate])
 
     const handleSubmit = (event) => {
         event.preventDefault();
 
         let user = { username: username, password: password };
 
+        axios.defaults.withCredentials = true;
         axios.post('http://localhost:3000/login', user)
-            .then(function (res) {
+            .then(res => {
                 if (res.status === 200) {
-                    sessionStorage.setItem('logged-in', username);
                     navigate('/home');
                 }
             })
-            .catch(function (error) {
+            .catch(error => {
                 if (error.response.status === 401) {
                     console.log("Invalid credentials");
                 }

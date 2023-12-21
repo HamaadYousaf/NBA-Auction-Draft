@@ -1,7 +1,7 @@
 import { draftTimer } from '../utils/draftUtils.js';
 import { joinUser, getUsersInRoom, leaveUser, setHost } from '../utils/userUtils.js';
 
-export const socketHandler = (io) => {
+export const socketMiddleware = (io) => {
     io.on('connection', socket => {
         socket.on('joined-room', (room) => {
             socket.join('draft-room');

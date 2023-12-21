@@ -9,9 +9,7 @@ export const postLogin = async (req, res) => {
 
         if (currUser) {
             if (currUser.password === password) {
-
                 req.session.user = username;
-
                 return res.status(200).json({ sucess: true, data: currUser.username });
             } else {
                 return res.status(401).json({ sucess: false, msg: "Invalid credentials" });
@@ -26,10 +24,9 @@ export const postLogin = async (req, res) => {
 
 export const getLogin = async (req, res) => {
     if (req.session.user) {
-        return res.status(200).json({ sucess: true, data: currUser.username });
-    } else {
-        return res.status(401).json({ sucess: false, msg: "Not logged in" });
+        return res.status(200).json({ sucess: true, data: req.session.user });
     }
+    return res.status(401).json({ sucess: false, msg: "Not Authorized" });
 }
 
 export const postRegister = async (req, res) => {
@@ -43,7 +40,6 @@ export const postRegister = async (req, res) => {
         });
 
         req.session.user = username;
-
         return res.status(200).json({ sucess: true, data: currUser.username });
     } catch (error) {
         console.log(error)
