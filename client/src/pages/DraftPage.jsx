@@ -1,8 +1,9 @@
+import axios from 'axios';
 import { useState, useEffect, useContext, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { setTimeCache, getTimeCache, setPlayerCache, getPlayerCache } from '../services/draftService.js';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -10,17 +11,10 @@ const DraftPage = () => {
 
     let isHost = useRef(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [timer, setTimer] = useState(localStorage.getItem('time') || '');
+    const [timer, setTimer] = useState(getTimeCache() || '');
     const [numUsers, setNumUsers] = useState();
     const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
-    const [player, setPlayer] = useState(
-        JSON.parse(localStorage.getItem('player')) ||
-        {
-            "name": "",
-            "image": "",
-            "team": "",
-            "pos": ""
-        });
+    const [player, setPlayer] = useState(getPlayerCache() || '');
     const [feed, setFeed] = useState(
         JSON.parse(localStorage.getItem('feed')) ||
         [
@@ -41,26 +35,18 @@ const DraftPage = () => {
     useEffect(() => {
         if (isLoggedIn) {
             if (socket === null) return;
-
+            console.log(player)
             socket.emit('joined-room', 'draft-room');
         }
-    }, [socket, isLoggedIn]);
+    }, [socket, isLoggedIn, player]);
 
     useEffect(() => {
         if (isLoggedIn) {
             if (socket == null) return;
 
             socket.on('get-num-users', (num) => setNumUsers(num));
-
-            socket.on('timer', (time) => {
-                localStorage.setItem('time', time);
-                setTimer(time)
-            });
-
-            socket.on('get-player', (player) => {
-                localStorage.setItem('player', JSON.stringify(player));
-                setPlayer(player)
-            });
+            socket.on('timer', (time) => { setTimer(time); setTimeCache(time); });
+            socket.on('get-player', (player) => { setPlayerCache(player); setPlayer(player) });
 
             socket.on('run-draft', () => {
                 localStorage.setItem('running', true);

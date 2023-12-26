@@ -1,14 +1,11 @@
 import express from 'express';
-import { getTime, getPlayers, getUsers, getFeed } from '../controllers/draftController.js';
-import { authorize } from '../middleware/auth.js';
+import * as draft from '../controllers/draftController.js';
 
 const router = express.Router();
 
-router.use(authorize);
-
-router.get('/time', getTime);
-router.get('/players', getPlayers);
-router.get('/users', getUsers);
-router.get('/feed', getFeed);
+router.route('/time').get(draft.getTime).post(draft.postTime);
+router.route('/player').get(draft.getPlayer).post(draft.postPlayer);
+router.route('/users').get(draft.getUsers).post(draft.postUsers);
+// router.get('/feed', getFeed);
 
 export default router;
