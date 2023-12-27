@@ -65,13 +65,16 @@ export const postUsers = async (req, res) => {
     const room = await Room.findOne({ name: 'draft-room' });
 
     if (room) {
+        if (room.users.includes(req.session.user)) {
+            return res.status(201).json({ sucess: true, msg: "user aleady in room" });
+        }
         const newUsers = [...room.users, req.session.user];
         await Room.findOneAndUpdate({ name: "draft-room" }, { users: newUsers });
         return res.status(201).json({ sucess: true, msg: "user added to room" });
     } else {
         await Room.create({
             name: 'draft-room',
-            users: [req.session.user]
+            users: new Set([req.session.user])
         });
         return res.status(201).json({ sucess: true, msg: "user added to room" });
     }
@@ -79,6 +82,11 @@ export const postUsers = async (req, res) => {
 
 export const postFeed = () => {
 
+}
+
+export const clearUsers = async (req, res) => {
+    await Room.findOneAndUpdate({ name: "draft-room" }, { users: [] });
+    return res.status(200).json({ sucess: true, msg: "room cleared" });
 }
 
 const getKey = async (key) => {
