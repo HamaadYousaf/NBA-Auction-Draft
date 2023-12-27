@@ -1,26 +1,26 @@
+import axios from 'axios';
 import { useState, useEffect, useContext, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import * as draft from '../services/draftService.js';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
     let isHost = useRef(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [timer, setTimer] = useState(localStorage.getItem('time') || '');
+    const [timer, setTimer] = useState();
     const [numUsers, setNumUsers] = useState();
     const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
-    const [player, setPlayer] = useState(
-        JSON.parse(localStorage.getItem('player')) ||
-        {
-            "name": "",
-            "image": "",
-            "team": "",
-            "pos": ""
-        });
+    const [player, setPlayer] = useState({
+        "name": "",
+        "image": "",
+        "team": "",
+        "pos": ""
+    });
     const [feed, setFeed] = useState(
         JSON.parse(localStorage.getItem('feed')) ||
         [
@@ -31,18 +31,36 @@ const DraftPage = () => {
         ]);
 
     useEffect(() => {
+        const fetch = async () => {
+            setIsLoading(true);
+            draft.setUsersRoom();
+            setPlayer(await draft.getPlayerCache());
+            setTimer(await draft.getTimeCache());
+            setNumUsers(await draft.getUsersRoom());
+            setIsLoading(false)
+        }
+        if (isLoggedIn) fetch();
+    }, [isLoggedIn])
+
+    useEffect(() => {
         axios.defaults.withCredentials = true;
         axios.get('http://localhost:3000/login',)
+            .then(() => setIsLoggedIn(true))
             .catch(() => navigate('/login'));
-
-        setIsLoggedIn(true);
     }, [navigate])
 
     useEffect(() => {
         if (isLoggedIn) {
             if (socket === null) return;
 
-            socket.emit('joined-room', 'draft-room');
+            const fetch = async () => {
+                setIsLoading(true);
+                draft.setUsersRoom();
+                setNumUsers(await draft.getUsersRoom());
+                socket.emit('joined-room', 'draft-room');
+                setIsLoading(false)
+            }
+            fetch();
         }
     }, [socket, isLoggedIn]);
 
@@ -50,17 +68,13 @@ const DraftPage = () => {
         if (isLoggedIn) {
             if (socket == null) return;
 
-            socket.on('get-num-users', (num) => setNumUsers(num));
-
-            socket.on('timer', (time) => {
-                localStorage.setItem('time', time);
-                setTimer(time)
+            socket.on('user-joined', async () => {
+                setIsLoading(true);
+                setNumUsers(await draft.getUsersRoom());
+                setIsLoading(false)
             });
-
-            socket.on('get-player', (player) => {
-                localStorage.setItem('player', JSON.stringify(player));
-                setPlayer(player)
-            });
+            socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
+            socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
 
             socket.on('run-draft', () => {
                 localStorage.setItem('running', true);
@@ -108,7 +122,7 @@ const DraftPage = () => {
             {!isRunning ? (
                 <>
                     <span>Waiting for host to begin draft</span>
-                    {numUsers === 2 && isHost.current ? (
+                    {numUsers === 1 && isHost.current ? (
                         <>
                             <button onClick={handleClick}>Start</button>
                         </>
@@ -116,13 +130,13 @@ const DraftPage = () => {
                     <span>Players in draft room = {numUsers}</span>
                 </>) : (
                 <>
-                    <span>Timer = {timer}</span>
+                    <span>Timer = {isLoading ? (<>...</>) : (<>{timer}</>)}</span>
                     <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <span><img src={player.image} alt={player.name}></img></span>
-                    <span>Player: {player.name}&nbsp;&nbsp;&nbsp;</span>
+                    <span>Player: {isLoading ? (<>...</>) : (<>{player.name}</>)}&nbsp;&nbsp;&nbsp;</span>
                     <span>
-                        Team: {player.team}&nbsp;
-                        Position: {player.pos}&nbsp;
+                        Team: {isLoading ? (<>...</>) : (<>{player.team}</>)}&nbsp;
+                        Position: {isLoading ? (<>...</>) : (<>{player.pos}</>)}&nbsp;
                     </span>
                 </>)
             }

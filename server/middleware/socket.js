@@ -5,12 +5,8 @@ export const socketMiddleware = (io) => {
     io.on('connection', socket => {
         socket.on('joined-room', (room) => {
             socket.join('draft-room');
-            joinUser(socket);
             socket.broadcast.to('draft-room').emit('feed', `${socket.id} has joined the draft room`, '3:00PM');
-
-            const num = getUsersInRoom();
-            socket.broadcast.to(room).emit('get-num-users', num);
-            socket.emit('get-num-users', num);
+            socket.broadcast.to('draft-room').emit('user-joined');
         });
 
         socket.on('isHost', () => {
