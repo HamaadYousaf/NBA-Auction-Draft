@@ -53,17 +53,20 @@ export const setUsersRoom = () => {
 }
 
 export const getUsersRoom = async () => {
-    axios.defaults.withCredentials = true;
-    await axios.get('http://localhost:3000/draft/users',)
-        .then(res => {
-            if (res.status === 200) {
-                const num = res.data.data.length;
-                return num;
-            }
-        })
-        .catch((err) => console.log(err));
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/draft/users',)
+            .then(res => {
+                if (res.status === 200) {
+                    if (res.data.data === null) {
+                        return '';
+                    }
+                    return resolve(res.data.data.length);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
 }
-
 export const clearRoom = async () => {
 
 }

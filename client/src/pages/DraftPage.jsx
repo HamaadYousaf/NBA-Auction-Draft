@@ -13,7 +13,7 @@ const DraftPage = () => {
     const [isLoading, setIsLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [timer, setTimer] = useState();
-    const [numUsers, setNumUsers] = useState(1);
+    const [numUsers, setNumUsers] = useState();
     const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
     const [player, setPlayer] = useState({
         "name": "",
@@ -33,12 +33,14 @@ const DraftPage = () => {
     useEffect(() => {
         const fetch = async () => {
             setIsLoading(true);
+            draft.setUsersRoom();
             setPlayer(await draft.getPlayerCache());
             setTimer(await draft.getTimeCache());
+            setNumUsers(await draft.getUsersRoom());
             setIsLoading(false)
         }
-        fetch()
-    }, [])
+        if (isLoggedIn) fetch();
+    }, [isLoggedIn])
 
     useEffect(() => {
         axios.defaults.withCredentials = true;
@@ -50,16 +52,15 @@ const DraftPage = () => {
     useEffect(() => {
         if (isLoggedIn) {
             if (socket === null) return;
-            draft.setUsersRoom();
-            socket.emit('joined-room', 'draft-room');
-            axios.defaults.withCredentials = true;
-            axios.get('http://localhost:3000/draft/users',)
-                .then(res => {
-                    if (res.status === 200) {
-                        setNumUsers(res.data.data.length);
-                    }
-                })
-                .catch((err) => console.log(err));
+
+            const fetch = async () => {
+                setIsLoading(true);
+                draft.setUsersRoom();
+                setNumUsers(await draft.getUsersRoom());
+                socket.emit('joined-room', 'draft-room');
+                setIsLoading(false)
+            }
+            fetch();
         }
     }, [socket, isLoggedIn]);
 
@@ -67,15 +68,10 @@ const DraftPage = () => {
         if (isLoggedIn) {
             if (socket == null) return;
 
-            socket.on('user-joined', () => {
-                axios.defaults.withCredentials = true;
-                axios.get('http://localhost:3000/draft/users',)
-                    .then(res => {
-                        if (res.status === 200) {
-                            setNumUsers(res.data.data.length);
-                        }
-                    })
-                    .catch((err) => console.log(err));
+            socket.on('user-joined', async () => {
+                setIsLoading(true);
+                setNumUsers(await draft.getUsersRoom());
+                setIsLoading(false)
             });
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
             socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
