@@ -12,10 +12,15 @@ const DraftPage = () => {
     let isHost = useRef(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
-    const [timer, setTimer] = useState(draft.getTimeCache() || '');
+    const [timer, setTimer] = useState();
     const [numUsers, setNumUsers] = useState(1);
     const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
-    const [player, setPlayer] = useState(draft.getPlayerCache() || '');
+    const [player, setPlayer] = useState({
+        "name": "",
+        "image": "",
+        "team": "",
+        "pos": ""
+    });
     const [feed, setFeed] = useState(
         JSON.parse(localStorage.getItem('feed')) ||
         [
