@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, useContext, useRef } from 'react'
+import { useState, useEffect, useContext } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
@@ -9,7 +9,6 @@ const DraftPage = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
-    let isHost = useRef(false);
     const [isLoading, setIsLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [timer, setTimer] = useState();
@@ -39,6 +38,7 @@ const DraftPage = () => {
             setNumUsers(await draft.getUsersRoom());
             setIsLoading(false)
         }
+
         if (isLoggedIn) fetch();
     }, [isLoggedIn])
 
@@ -94,15 +94,11 @@ const DraftPage = () => {
                 setFeed(newFeed);
             })
 
-            if (numUsers === 1) {
-                isHost.current = true;
-                socket.emit('isHost');
-            }
-
-            socket.on('draft-complete', () => {
-                setIsRunning(false);
-                localStorage.clear();
-                navigate('/home');
+            socket.on('draft-complete', async () => {
+                if (await draft.clearRoom()) {
+                    setIsRunning(false);
+                    navigate('/home');
+                }
             });
         }
 
@@ -111,18 +107,29 @@ const DraftPage = () => {
         }
     }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, navigate]);
 
-    const handleClick = () => {
-        socket.emit("start-timer");
-        setIsRunning(true);
-        localStorage.setItem('running', true);
+    const handleClick = async () => {
+        if (!isRunning) {
+            socket.emit("start-timer");
+            socket.emit('host');
+            setIsRunning(true);
+            localStorage.setItem('running', true);
+        }
+    }
+
+    const handleLeave = async () => {
+        if (await draft.leaveUser()) {
+            socket.emit('leave-room');
+            navigate('/home')
+        }
     }
 
     return (
         <div>
+            <span><button onClick={handleLeave}>Leave Room</button></span>
             {!isRunning ? (
                 <>
                     <span>Waiting for host to begin draft</span>
-                    {numUsers === 1 && isHost.current ? (
+                    {numUsers === 3 ? (
                         <>
                             <button onClick={handleClick}>Start</button>
                         </>
