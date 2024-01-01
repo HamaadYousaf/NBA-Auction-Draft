@@ -62,6 +62,8 @@ export const postPlayer = async (req, res) => {
 }
 
 export const postUsers = async (req, res) => {
+    if (!req.session.user) return res.status(200).json({ sucess: true, msg: "no user" });
+
     const room = await Room.findOne({ name: 'draft-room' });
 
     if (room) {
@@ -74,7 +76,8 @@ export const postUsers = async (req, res) => {
     } else {
         await Room.create({
             name: 'draft-room',
-            users: new Set([req.session.user])
+            users: new Set([req.session.user]),
+            host: ''
         });
         return res.status(201).json({ sucess: true, msg: "user added to room" });
     }
@@ -86,7 +89,16 @@ export const postFeed = () => {
 
 export const clearUsers = async (req, res) => {
     await Room.findOneAndUpdate({ name: "draft-room" }, { users: [] });
+
     return res.status(200).json({ sucess: true, msg: "room cleared" });
+}
+
+export const leaveUser = async (req, res) => {
+    const room = await Room.findOne({ name: 'draft-room' });
+    const newUsers = room.users.filter(user => user != req.session.user);
+    await Room.findOneAndUpdate({ name: "draft-room" }, { users: newUsers });
+
+    return res.status(201).json({ sucess: true, msg: "user removed from room" });
 }
 
 const getKey = async (key) => {

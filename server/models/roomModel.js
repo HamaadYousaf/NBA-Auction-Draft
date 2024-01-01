@@ -9,6 +9,9 @@ const roomSchema = mongoose.Schema(
         },
         users: {
             type: Array,
+        },
+        host: {
+            type: String
         }
     }
 );

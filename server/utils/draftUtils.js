@@ -1,11 +1,8 @@
 import { createRequire } from 'node:module';
-import { getHost } from './userUtils.js';
 const players = createRequire(import.meta.url)('../../config/players.json');
 
 export const draftTimer = async (socket, io) => {
-    const host = getHost();
-
-    if (socket.id === host) {
+    socket.on('host', async () => {
         for (let i = 1; i < 6; i++) {
             let time = 10;
             let player = players[`player${i}`];
@@ -21,7 +18,7 @@ export const draftTimer = async (socket, io) => {
         io.to('draft-room').emit('feed', 'Draft complete', '3:00PM');
         await sleep(5000);
         io.to('draft-room').emit('draft-complete');
-    }
+    })
 }
 
 async function sleep(ms) {

@@ -3,7 +3,7 @@ import axios from 'axios';
 export const getTimeCache = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3000/draft/time',)
+        axios.get('http://localhost:3000/draft/time')
             .then(res => {
                 if (res.status === 200) {
                     if (res.data.data === null) {
@@ -26,7 +26,7 @@ export const setTimeCache = (time) => {
 export const getPlayerCache = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3000/draft/player',)
+        axios.get('http://localhost:3000/draft/player')
             .then(res => {
                 if (res.status === 200) {
                     if (res.data.data === null) {
@@ -55,7 +55,7 @@ export const setUsersRoom = () => {
 export const getUsersRoom = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3000/draft/users',)
+        axios.get('http://localhost:3000/draft/users')
             .then(res => {
                 if (res.status === 200) {
                     if (res.data.data === null) {
@@ -67,6 +67,29 @@ export const getUsersRoom = async () => {
             .catch((err) => { return reject(err) });
     })
 }
-export const clearRoom = async () => {
 
+export const leaveUser = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.put('http://localhost:3000/draft/users')
+            .then(res => {
+                if (res.status === 201) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const clearRoom = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.delete('http://localhost:3000/draft/users')
+            .then(res => {
+                if (res.status === 200) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
 }
