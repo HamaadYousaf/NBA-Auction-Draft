@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUsersRoom } from '../services/draftService';
+import { getUsersRoom, getRunning } from '../services/draftService';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -9,6 +9,7 @@ const HomePage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [numUsers, setNumUsers] = useState();
+    const [isRunning, setIsRunning] = useState();
 
     useEffect(() => {
         axios.defaults.withCredentials = true;
@@ -22,6 +23,7 @@ const HomePage = () => {
         const fetch = async () => {
             setIsLoading(true);
             setNumUsers(await getUsersRoom());
+            setIsRunning(await getRunning());
             setIsLoading(false)
         }
 
@@ -43,7 +45,11 @@ const HomePage = () => {
                 ) : (
                     <>
                         <span>Users in room: {numUsers}</span>
-                        {numUsers === 3 ? (<>Room full</>) : (<><button onClick={handleClick}>Join Room</button></>)}
+                        {isRunning ? (<>Draft already started</>) : (
+                            <>
+                                {numUsers === 2 ? (<>Room full</>) : (<><button onClick={handleClick}>Join Room</button></>)}
+                            </>
+                        )}
                     </>
                 )
             }

@@ -16,6 +16,11 @@ export const getTime = async (req, res) => {
     }
 }
 
+export const postTime = async (req, res) => {
+    await client.set('time', req.body.time);
+    return res.status(201).json({ sucess: true, msg: "time saved to cache" });
+}
+
 export const getPlayer = async (req, res) => {
     try {
         const name = await getKey('player-name');
@@ -34,24 +39,6 @@ export const getPlayer = async (req, res) => {
 
 }
 
-export const getUsers = async (req, res) => {
-    const room = await Room.findOne({ name: 'draft-room' });
-    if (room) {
-        return res.status(200).json({ sucess: true, data: room.users });
-    } else {
-        return res.status(200).json({ sucess: true, data: "" });
-    }
-}
-
-export const getFeed = () => {
-
-}
-
-export const postTime = async (req, res) => {
-    await client.set('time', req.body.time);
-    return res.status(201).json({ sucess: true, msg: "time saved to cache" });
-}
-
 export const postPlayer = async (req, res) => {
     await client.set('player-name', req.body.player.name);
     await client.set('player-image', req.body.player.image);
@@ -59,6 +46,15 @@ export const postPlayer = async (req, res) => {
     await client.set('player-pos', req.body.player.pos);
 
     return res.status(201).json({ sucess: true, msg: "player saved to cache" });
+}
+
+export const getUsers = async (req, res) => {
+    const room = await Room.findOne({ name: 'draft-room' });
+    if (room) {
+        return res.status(200).json({ sucess: true, data: room.users });
+    } else {
+        return res.status(200).json({ sucess: true, data: "" });
+    }
 }
 
 export const postUsers = async (req, res) => {
@@ -77,14 +73,9 @@ export const postUsers = async (req, res) => {
         await Room.create({
             name: 'draft-room',
             users: new Set([req.session.user]),
-            host: ''
         });
         return res.status(201).json({ sucess: true, msg: "user added to room" });
     }
-}
-
-export const postFeed = () => {
-
 }
 
 export const clearUsers = async (req, res) => {
@@ -99,6 +90,21 @@ export const leaveUser = async (req, res) => {
     await Room.findOneAndUpdate({ name: "draft-room" }, { users: newUsers });
 
     return res.status(201).json({ sucess: true, msg: "user removed from room" });
+}
+
+export const setRunning = async (req, res) => {
+    await Room.findOneAndUpdate({ name: "draft-room" }, { running: true });
+    return res.status(201).json({ sucess: true, msg: "running draft" });
+}
+
+export const clearRunning = async (req, res) => {
+    await Room.findOneAndUpdate({ name: "draft-room" }, { running: false });
+    return res.status(201).json({ sucess: true, msg: "ending draft" });
+}
+
+export const getRunning = async (req, res) => {
+    const room = await Room.findOne({ name: 'draft-room' });
+    return res.status(200).json({ sucess: true, data: room.running });
 }
 
 const getKey = async (key) => {

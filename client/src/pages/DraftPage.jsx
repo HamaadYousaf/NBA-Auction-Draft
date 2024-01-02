@@ -13,7 +13,7 @@ const DraftPage = () => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [timer, setTimer] = useState();
     const [numUsers, setNumUsers] = useState();
-    const [isRunning, setIsRunning] = useState(localStorage.getItem('running') || false);
+    const [isRunning, setIsRunning] = useState();
     const [player, setPlayer] = useState({
         "name": "",
         "image": "",
@@ -36,6 +36,7 @@ const DraftPage = () => {
             setPlayer(await draft.getPlayerCache());
             setTimer(await draft.getTimeCache());
             setNumUsers(await draft.getUsersRoom());
+            setIsRunning(await draft.getRunning());
             setIsLoading(false)
         }
 
@@ -75,11 +76,7 @@ const DraftPage = () => {
             });
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
             socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
-
-            socket.on('run-draft', () => {
-                localStorage.setItem('running', true);
-                setIsRunning(true)
-            });
+            socket.on('run-draft', () => setIsRunning(true));
 
             socket.on('feed', (msg, time) => {
                 const newFeed = [
@@ -95,7 +92,7 @@ const DraftPage = () => {
             })
 
             socket.on('draft-complete', async () => {
-                if (await draft.clearRoom()) {
+                if (await draft.clearRoom() && await draft.clearRunning()) {
                     setIsRunning(false);
                     navigate('/home');
                 }
@@ -109,10 +106,11 @@ const DraftPage = () => {
 
     const handleClick = async () => {
         if (!isRunning) {
-            socket.emit("start-timer");
-            socket.emit('host');
-            setIsRunning(true);
-            localStorage.setItem('running', true);
+            if (await draft.setRunning()) {
+                socket.emit("start-timer");
+                socket.emit('host');
+                setIsRunning(true);
+            }
         }
     }
 
@@ -129,7 +127,7 @@ const DraftPage = () => {
             {!isRunning ? (
                 <>
                     <span>Waiting for host to begin draft</span>
-                    {numUsers === 3 ? (
+                    {numUsers === 2 ? (
                         <>
                             <button onClick={handleClick}>Start</button>
                         </>
