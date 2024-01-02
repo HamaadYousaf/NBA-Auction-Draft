@@ -93,3 +93,42 @@ export const clearRoom = async () => {
             .catch((err) => { return reject(err) });
     })
 }
+
+export const setRunning = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.post('http://localhost:3000/draft/run')
+            .then(res => {
+                if (res.status === 201) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const getRunning = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/draft/run')
+            .then(res => {
+                if (res.status === 200) {
+                    return resolve(res.data.data);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const clearRunning = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.put('http://localhost:3000/draft/run')
+            .then(res => {
+                if (res.status === 201) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
