@@ -98,6 +98,7 @@ const DraftPage = () => {
 
             socket.on('draft-complete', async () => {
                 if (await draft.clearRoom() && await draft.clearRunning()) {
+                    localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
                 }
