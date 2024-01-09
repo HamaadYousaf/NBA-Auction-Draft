@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { useState, useEffect, useContext } from 'react'
+import { useState, useEffect, useContext, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
@@ -9,6 +9,7 @@ const DraftPage = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
 
+    const user = useRef();
     const [isLoading, setIsLoading] = useState(true);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [timer, setTimer] = useState();
@@ -25,14 +26,14 @@ const DraftPage = () => {
         [
             {
                 "msg": "Welcome to the draft room",
-                "time": "3:00PM"
+                "time": ""
             },
         ]);
 
     useEffect(() => {
         const fetch = async () => {
             setIsLoading(true);
-            draft.setUsersRoom();
+            await draft.setUsersRoom();
             setPlayer(await draft.getPlayerCache());
             setTimer(await draft.getTimeCache());
             setNumUsers(await draft.getUsersRoom());
@@ -41,12 +42,15 @@ const DraftPage = () => {
         }
 
         if (isLoggedIn) fetch();
-    }, [isLoggedIn])
+    }, [isLoggedIn, numUsers])
 
     useEffect(() => {
         axios.defaults.withCredentials = true;
         axios.get('http://localhost:3000/login',)
-            .then(() => setIsLoggedIn(true))
+            .then(res => {
+                setIsLoggedIn(true);
+                user.current = res.data.data;
+            })
             .catch(() => navigate('/login'));
     }, [navigate])
 
@@ -56,14 +60,14 @@ const DraftPage = () => {
 
             const fetch = async () => {
                 setIsLoading(true);
-                draft.setUsersRoom();
+                await draft.setUsersRoom();
                 setNumUsers(await draft.getUsersRoom());
-                socket.emit('joined-room', 'draft-room');
+                socket.emit('joined-room', 'draft-room', user.current);
                 setIsLoading(false)
             }
             fetch();
         }
-    }, [socket, isLoggedIn]);
+    }, [socket, isLoggedIn, user]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -72,6 +76,7 @@ const DraftPage = () => {
             socket.on('user-joined', async () => {
                 setIsLoading(true);
                 setNumUsers(await draft.getUsersRoom());
+                console.log(numUsers)
                 setIsLoading(false)
             });
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
@@ -93,6 +98,7 @@ const DraftPage = () => {
 
             socket.on('draft-complete', async () => {
                 if (await draft.clearRoom() && await draft.clearRunning()) {
+                    localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
                 }

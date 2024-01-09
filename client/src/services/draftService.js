@@ -47,9 +47,12 @@ export const setPlayerCache = (player) => {
 }
 
 export const setUsersRoom = () => {
-    axios.defaults.withCredentials = true;
-    axios.post('http://localhost:3000/draft/users')
-        .catch((err) => console.log(err));
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.post('http://localhost:3000/draft/users')
+            .then(resolve())
+            .catch((err) => { return reject(err) });
+    })
 }
 
 export const getUsersRoom = async () => {
@@ -61,7 +64,8 @@ export const getUsersRoom = async () => {
                     if (res.data.data === null) {
                         return '';
                     }
-                    return resolve(res.data.data.length);
+                    const length = res.data.data.length;
+                    return resolve(length);
                 }
             })
             .catch((err) => { return reject(err) });
