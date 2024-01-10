@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
 import * as draft from '../services/draftService.js';
+import Bid from '../components/Bid.jsx';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -29,6 +30,8 @@ const DraftPage = () => {
                 "time": ""
             },
         ]);
+    const [currBidder, setCurrBidder] = useState();
+    const [currBid, setCurrBid] = useState(0);
 
     useEffect(() => {
         const fetch = async () => {
@@ -42,7 +45,7 @@ const DraftPage = () => {
         }
 
         if (isLoggedIn) fetch();
-    }, [isLoggedIn, numUsers])
+    }, [isLoggedIn, numUsers]);
 
     useEffect(() => {
         axios.defaults.withCredentials = true;
@@ -52,7 +55,7 @@ const DraftPage = () => {
                 user.current = res.data.data;
             })
             .catch(() => navigate('/login'));
-    }, [navigate])
+    }, [navigate]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -76,7 +79,6 @@ const DraftPage = () => {
             socket.on('user-joined', async () => {
                 setIsLoading(true);
                 setNumUsers(await draft.getUsersRoom());
-                console.log(numUsers)
                 setIsLoading(false)
             });
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
@@ -102,6 +104,11 @@ const DraftPage = () => {
                     setIsRunning(false);
                     navigate('/home');
                 }
+            });
+
+            socket.on('bid-update', (user, amount) => {
+                setCurrBidder(user);
+                setCurrBid(amount);
             });
         }
 
@@ -151,12 +158,15 @@ const DraftPage = () => {
                     </span>
                 </>)
             }
-            <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
-                {
-                    feed.map((log) => {
-                        return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
-                    })
-                }
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
+                    {
+                        feed.map((log) => {
+                            return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
+                        })
+                    }
+                </div>
+                <Bid socket={socket} user={user.current} currBid={currBid} currBidder={currBidder} />
             </div>
         </div>
     )

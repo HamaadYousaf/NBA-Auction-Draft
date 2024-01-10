@@ -22,6 +22,12 @@ export const draftTimer = async (socket, io) => {
     })
 }
 
+export const bidHandler = async (socket, io) => {
+    socket.on('bid', (user, amount) => {
+        io.to('draft-room').emit('bid-update', user, amount);
+    })
+}
+
 async function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
