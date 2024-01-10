@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 const Bid = ({ socket, user, currBid, currBidder }) => {
 
     const handleClick = (amount) => {
-        socket.emit('bid', user, currBid + amount);
+        const newBid = currBid + amount;
+        socket.emit('bid', user, newBid);
     }
 
     return (

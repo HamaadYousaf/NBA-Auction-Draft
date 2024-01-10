@@ -136,3 +136,26 @@ export const clearRunning = async () => {
             .catch((err) => { return reject(err) });
     })
 }
+
+export const getBidCache = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.get('http://localhost:3000/draft/bid')
+            .then(res => {
+                if (res.status === 200) {
+                    if (res.data.data === null) {
+                        return { bid: 0, bidder: "" };
+                    }
+                    const bidData = { bid: parseInt(res.data.data.bid) || 0, bidder: res.data.data.bidder }
+                    return resolve(bidData);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const setBidCache = (bid) => {
+    axios.defaults.withCredentials = true;
+    axios.post('http://localhost:3000/draft/Bid', bid)
+        .catch((err) => console.log(err));
+}

@@ -30,8 +30,7 @@ const DraftPage = () => {
                 "time": ""
             },
         ]);
-    const [currBidder, setCurrBidder] = useState();
-    const [currBid, setCurrBid] = useState(0);
+    const [bidData, setBidData] = useState({ bid: 0, bidder: "" });
 
     useEffect(() => {
         const fetch = async () => {
@@ -41,6 +40,7 @@ const DraftPage = () => {
             setTimer(await draft.getTimeCache());
             setNumUsers(await draft.getUsersRoom());
             setIsRunning(await draft.getRunning());
+            setBidData(await draft.getBidCache());
             setIsLoading(false)
         }
 
@@ -107,15 +107,15 @@ const DraftPage = () => {
             });
 
             socket.on('bid-update', (user, amount) => {
-                setCurrBidder(user);
-                setCurrBid(amount);
+                setBidData({ bid: amount, bidder: user });
+                draft.setBidCache({ bid: amount, bidder: user });
             });
         }
 
         return () => {
             socket.removeAllListeners();
         }
-    }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, navigate]);
+    }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, bidData, navigate]);
 
     const handleClick = async () => {
         if (!isRunning) {
@@ -166,7 +166,7 @@ const DraftPage = () => {
                         })
                     }
                 </div>
-                <Bid socket={socket} user={user.current} currBid={currBid} currBidder={currBidder} />
+                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} />
             </div>
         </div>
     )
