@@ -84,7 +84,6 @@ const DraftPage = () => {
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
             socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
             socket.on('run-draft', () => setIsRunning(true));
-
             socket.on('feed', (msg, time) => {
                 const newFeed = [
                     ...feed,
@@ -98,17 +97,21 @@ const DraftPage = () => {
                 setFeed(newFeed);
             })
 
+            socket.on('bid-update', (user, amount) => {
+                setBidData({ bid: amount, bidder: user });
+                draft.setBidCache({ bid: amount, bidder: user });
+            });
+
+            socket.on('round-complete', async () => {
+                socket.emit('handle-bid', user.current, bidData);
+            });
+
             socket.on('draft-complete', async () => {
                 if (await draft.clearRoom() && await draft.clearRunning()) {
                     localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
                 }
-            });
-
-            socket.on('bid-update', (user, amount) => {
-                setBidData({ bid: amount, bidder: user });
-                draft.setBidCache({ bid: amount, bidder: user });
             });
         }
 

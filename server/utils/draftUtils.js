@@ -1,12 +1,15 @@
 import moment from 'moment';
 import { createRequire } from 'node:module';
 const players = createRequire(import.meta.url)('../../config/players.json');
+import { User } from '../models/userModel.js';
 
-export const draftTimer = async (socket, io) => {
+let player = '';
+
+export const draftTimer = async (socket, io, username) => {
     socket.on('host', async () => {
         for (let i = 1; i < 6; i++) {
             let time = 10;
-            let player = players[`player${i}`];
+            player = players[`player${i}`];
             io.to('draft-room').emit('get-player', player);
             io.to('draft-room').emit('timer', time);
 
@@ -14,7 +17,8 @@ export const draftTimer = async (socket, io) => {
                 io.to('draft-room').emit('timer', time--);
                 await sleep(1000);
             }
-            await sleep(2000);
+            io.to('draft-room').emit('round-complete');
+            await sleep(3000);
         }
         io.to('draft-room').emit('feed', 'Draft complete', moment().format('h:mm a'));
         await sleep(5000);
@@ -25,6 +29,17 @@ export const draftTimer = async (socket, io) => {
 export const bidHandler = async (socket, io) => {
     socket.on('bid', (user, amount) => {
         io.to('draft-room').emit('bid-update', user, amount);
+    })
+
+    socket.on('handle-bid', async (user, bidData) => {
+        if (bidData.bidder === user) {
+            const userData = await User.findOne({ username: user });
+            const newTeam = [...userData.team, player];
+            await User.findOneAndUpdate({ username: user }, { team: newTeam });
+            io.to('draft-room').emit('feed', `${bidData.bidder} drafted ${player.name} for $${bidData.bid}`, moment().format('h:mm a'));
+            io.to('draft-room').emit('bid-update', '', 0);
+        }
+
     })
 }
 
