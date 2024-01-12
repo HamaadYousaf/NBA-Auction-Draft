@@ -5,7 +5,7 @@ import { User } from '../models/userModel.js';
 
 let player = '';
 
-export const draftTimer = async (socket, io, username) => {
+export const draftTimer = async (socket, io) => {
     socket.on('host', async () => {
         for (let i = 1; i < 6; i++) {
             let time = 10;
@@ -13,7 +13,7 @@ export const draftTimer = async (socket, io, username) => {
             io.to('draft-room').emit('get-player', player);
             io.to('draft-room').emit('timer', time);
 
-            for (let j = 0; j < 11; j++) {
+            for (let j = 0; j < 6; j++) {
                 io.to('draft-room').emit('timer', time--);
                 await sleep(1000);
             }
@@ -40,6 +40,12 @@ export const bidHandler = async (socket, io) => {
             io.to('draft-room').emit('bid-update', '', 0);
         }
 
+    })
+
+    socket.on('save-team', async (user) => {
+        const userData = await User.findOne({ username: user });
+        const newUserTeams = [...userData.userTeams, userData.team];
+        await User.findOneAndUpdate({ username: user }, { team: [], userTeams: newUserTeams });
     })
 }
 

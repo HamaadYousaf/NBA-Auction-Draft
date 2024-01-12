@@ -108,6 +108,7 @@ const DraftPage = () => {
 
             socket.on('draft-complete', async () => {
                 if (await draft.clearRoom() && await draft.clearRunning()) {
+                    socket.emit('save-team', user.current);
                     localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
