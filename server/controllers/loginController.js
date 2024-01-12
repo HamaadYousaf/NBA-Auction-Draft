@@ -40,7 +40,7 @@ export const postRegister = async (req, res) => {
         });
 
         req.session.user = username;
-        return res.status(200).json({ sucess: true, data: currUser.username });
+        return res.status(200).json({ sucess: true, data: currUser });
     } catch (error) {
         console.log(error)
     }

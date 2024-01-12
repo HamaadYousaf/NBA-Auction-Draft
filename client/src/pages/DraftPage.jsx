@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
 import * as draft from '../services/draftService.js';
+import Bid from '../components/Bid.jsx';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -29,6 +30,7 @@ const DraftPage = () => {
                 "time": ""
             },
         ]);
+    const [bidData, setBidData] = useState({ bid: 0, bidder: "" });
 
     useEffect(() => {
         const fetch = async () => {
@@ -38,11 +40,12 @@ const DraftPage = () => {
             setTimer(await draft.getTimeCache());
             setNumUsers(await draft.getUsersRoom());
             setIsRunning(await draft.getRunning());
+            setBidData(await draft.getBidCache());
             setIsLoading(false)
         }
 
         if (isLoggedIn) fetch();
-    }, [isLoggedIn, numUsers])
+    }, [isLoggedIn, numUsers]);
 
     useEffect(() => {
         axios.defaults.withCredentials = true;
@@ -52,7 +55,7 @@ const DraftPage = () => {
                 user.current = res.data.data;
             })
             .catch(() => navigate('/login'));
-    }, [navigate])
+    }, [navigate]);
 
     useEffect(() => {
         if (isLoggedIn) {
@@ -76,13 +79,11 @@ const DraftPage = () => {
             socket.on('user-joined', async () => {
                 setIsLoading(true);
                 setNumUsers(await draft.getUsersRoom());
-                console.log(numUsers)
                 setIsLoading(false)
             });
             socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
             socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
             socket.on('run-draft', () => setIsRunning(true));
-
             socket.on('feed', (msg, time) => {
                 const newFeed = [
                     ...feed,
@@ -96,8 +97,18 @@ const DraftPage = () => {
                 setFeed(newFeed);
             })
 
+            socket.on('bid-update', (user, amount) => {
+                setBidData({ bid: amount, bidder: user });
+                draft.setBidCache({ bid: amount, bidder: user });
+            });
+
+            socket.on('round-complete', async () => {
+                socket.emit('handle-bid', user.current, bidData);
+            });
+
             socket.on('draft-complete', async () => {
                 if (await draft.clearRoom() && await draft.clearRunning()) {
+                    socket.emit('save-team', user.current);
                     localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
@@ -108,7 +119,7 @@ const DraftPage = () => {
         return () => {
             socket.removeAllListeners();
         }
-    }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, navigate]);
+    }, [socket, timer, player, numUsers, isRunning, feed, isLoggedIn, bidData, navigate]);
 
     const handleClick = async () => {
         if (!isRunning) {
@@ -151,12 +162,15 @@ const DraftPage = () => {
                     </span>
                 </>)
             }
-            <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
-                {
-                    feed.map((log) => {
-                        return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
-                    })
-                }
+            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
+                    {
+                        feed.map((log) => {
+                            return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
+                        })
+                    }
+                </div>
+                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} />
             </div>
         </div>
     )

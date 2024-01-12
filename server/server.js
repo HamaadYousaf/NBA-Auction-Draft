@@ -8,6 +8,7 @@ import { sessionMiddleware } from './middleware/session.js';
 import { socketMiddleware } from './middleware/socket.js';
 import draftRoutes from './routes/draftRoutes.js';
 import loginRoutes from './routes/loginRoutes.js';
+import userRoutes from './routes/userRoutes.js';
 config({ path: '../.env' });
 
 connectDB();
@@ -33,6 +34,7 @@ app.use(cors({
 //Routes
 app.use('/login', loginRoutes);
 app.use('/draft', draftRoutes);
+app.use('/user', userRoutes);
 
 socketMiddleware(io);
 
