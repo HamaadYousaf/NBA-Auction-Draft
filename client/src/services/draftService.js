@@ -156,6 +156,45 @@ export const getBidCache = async () => {
 
 export const setBidCache = (bid) => {
     axios.defaults.withCredentials = true;
-    axios.post('http://localhost:3000/draft/Bid', bid)
+    axios.post('http://localhost:3000/draft/bid', bid)
         .catch((err) => console.log(err));
+}
+
+export const clearBidCache = () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.delete('http://localhost:3000/draft/bid')
+            .then(res => {
+                if (res.status === 200) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const savePlayerTeam = async (player, bidData) => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.post('http://localhost:3000/user/player', { player, bidData })
+            .then(res => {
+                if (res.status === 200) {
+                    return resolve();
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
+}
+
+export const saveTeam = async () => {
+    return new Promise((resolve, reject) => {
+        axios.defaults.withCredentials = true;
+        axios.post('http://localhost:3000/user/team')
+            .then(res => {
+                if (res.status === 200) {
+                    return resolve(true);
+                }
+            })
+            .catch((err) => { return reject(err) });
+    })
 }

@@ -1,7 +1,6 @@
 import moment from 'moment';
 import { createRequire } from 'node:module';
 const players = createRequire(import.meta.url)('../../config/players.json');
-import { User } from '../models/userModel.js';
 
 let player = '';
 
@@ -33,19 +32,9 @@ export const bidHandler = async (socket, io) => {
 
     socket.on('handle-bid', async (user, bidData) => {
         if (bidData.bidder === user) {
-            const userData = await User.findOne({ username: user });
-            const newTeam = [...userData.team, player];
-            await User.findOneAndUpdate({ username: user }, { team: newTeam });
             io.to('draft-room').emit('feed', `${bidData.bidder} drafted ${player.name} for $${bidData.bid}`, moment().format('h:mm a'));
             io.to('draft-room').emit('bid-update', '', 0);
         }
-
-    })
-
-    socket.on('save-team', async (user) => {
-        const userData = await User.findOne({ username: user });
-        const newUserTeams = [...userData.userTeams, userData.team];
-        await User.findOneAndUpdate({ username: user }, { team: [], userTeams: newUserTeams });
     })
 }
 

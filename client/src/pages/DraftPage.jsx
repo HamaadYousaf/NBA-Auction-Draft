@@ -65,7 +65,7 @@ const DraftPage = () => {
                 setIsLoading(true);
                 await draft.setUsersRoom();
                 setNumUsers(await draft.getUsersRoom());
-                socket.emit('joined-room', 'draft-room', user.current);
+                socket.emit('joined-room', user.current);
                 setIsLoading(false)
             }
             fetch();
@@ -103,12 +103,12 @@ const DraftPage = () => {
             });
 
             socket.on('round-complete', async () => {
+                draft.savePlayerTeam(player, bidData);
                 socket.emit('handle-bid', user.current, bidData);
             });
 
             socket.on('draft-complete', async () => {
-                if (await draft.clearRoom() && await draft.clearRunning()) {
-                    socket.emit('save-team', user.current);
+                if (await draft.clearRoom() && await draft.clearRunning() && await draft.saveTeam() && await draft.clearBidCache()) {
                     localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
@@ -124,7 +124,7 @@ const DraftPage = () => {
     const handleClick = async () => {
         if (!isRunning) {
             if (await draft.setRunning()) {
-                socket.emit("start-timer");
+                socket.emit("start-timer", user.current);
                 socket.emit('host');
                 setIsRunning(true);
             }
@@ -133,7 +133,7 @@ const DraftPage = () => {
 
     const handleLeave = async () => {
         if (await draft.leaveUser()) {
-            socket.emit('leave-room');
+            socket.emit('leave-room', user.current);
             navigate('/home')
         }
     }
@@ -144,7 +144,7 @@ const DraftPage = () => {
             {!isRunning ? (
                 <>
                     <span>Waiting for host to begin draft</span>
-                    {numUsers === 2 ? (
+                    {numUsers === 1 ? (
                         <>
                             <button onClick={handleClick}>Start</button>
                         </>

@@ -134,7 +134,7 @@ export const clearBid = async (req, res) => {
     await client.set('bid', '');
     await client.set('bidder', '');
 
-    return res.status(201).json({ sucess: true, msg: "bid cleared" });
+    return res.status(200).json({ sucess: true, msg: "bid cleared" });
 }
 
 const getKey = async (key) => {
