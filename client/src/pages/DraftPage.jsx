@@ -3,7 +3,7 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
-import * as draft from '../services/draftService.js';
+import { getReq, postReq, delReq, getBidCache, leaveUser } from '../services/draftService.js';
 import Bid from '../components/Bid.jsx';
 
 const DraftPage = () => {
@@ -35,12 +35,12 @@ const DraftPage = () => {
     useEffect(() => {
         const fetch = async () => {
             setIsLoading(true);
-            await draft.setUsersRoom();
-            setPlayer(await draft.getPlayerCache());
-            setTimer(await draft.getTimeCache());
-            setNumUsers(await draft.getUsersRoom());
-            setIsRunning(await draft.getRunning());
-            setBidData(await draft.getBidCache());
+            await postReq('/room/users');
+            setPlayer(await getReq('/draft/player'));
+            setTimer(await getReq('/draft/time'));
+            setNumUsers(await getReq('/room/users'));
+            setIsRunning(await getReq('/room/run'));
+            setBidData(await getBidCache());
             setIsLoading(false)
         }
 
@@ -63,8 +63,8 @@ const DraftPage = () => {
 
             const fetch = async () => {
                 setIsLoading(true);
-                await draft.setUsersRoom();
-                setNumUsers(await draft.getUsersRoom());
+                await postReq('/room/users');
+                setNumUsers(await getReq('/room/users'));
                 socket.emit('joined-room', user.current);
                 setIsLoading(false)
             }
@@ -78,11 +78,11 @@ const DraftPage = () => {
 
             socket.on('user-joined', async () => {
                 setIsLoading(true);
-                setNumUsers(await draft.getUsersRoom());
+                setNumUsers(await getReq('/room/users'));
                 setIsLoading(false)
             });
-            socket.on('timer', (time) => { setTimer(time); draft.setTimeCache(time); });
-            socket.on('get-player', (player) => { draft.setPlayerCache(player); setPlayer(player) });
+            socket.on('timer', (time) => { setTimer(time); postReq('/draft/time', { "time": time }); });
+            socket.on('get-player', (player) => { postReq('/draft/player', { "player": player }); setPlayer(player) });
             socket.on('run-draft', () => setIsRunning(true));
             socket.on('feed', (msg, time) => {
                 const newFeed = [
@@ -99,16 +99,16 @@ const DraftPage = () => {
 
             socket.on('bid-update', (user, amount) => {
                 setBidData({ bid: amount, bidder: user });
-                draft.setBidCache({ bid: amount, bidder: user });
+                postReq('/draft/bid', { bid: amount, bidder: user });
             });
 
             socket.on('round-complete', async () => {
-                draft.savePlayerTeam(player, bidData);
+                postReq('/user/player', { player, bidData });
                 socket.emit('handle-bid', user.current, bidData);
             });
 
             socket.on('draft-complete', async () => {
-                if (await draft.clearRoom() && await draft.clearRunning() && await draft.saveTeam() && await draft.clearBidCache()) {
+                if (await delReq('/room/users') && await delReq('/room/run') && await postReq('/user/team') && await delReq('/draft/bid')) {
                     localStorage.clear();
                     setIsRunning(false);
                     navigate('/home');
@@ -123,7 +123,7 @@ const DraftPage = () => {
 
     const handleClick = async () => {
         if (!isRunning) {
-            if (await draft.setRunning()) {
+            if (await postReq('/room/run')) {
                 socket.emit("start-timer", user.current);
                 socket.emit('host');
                 setIsRunning(true);
@@ -132,7 +132,7 @@ const DraftPage = () => {
     }
 
     const handleLeave = async () => {
-        if (await draft.leaveUser()) {
+        if (await leaveUser()) {
             socket.emit('leave-room', user.current);
             navigate('/home')
         }

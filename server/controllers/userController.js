@@ -19,7 +19,7 @@ export const setUserTeams = async (req, res) => {
     const newUserTeams = [...userData.userTeams, userData.team];
     await User.findOneAndUpdate({ username: req.session.user }, { team: [], userTeams: newUserTeams, bidAmount: 200 });
 
-    return res.status(200).json({ sucess: true, msg: "user team saved" })
+    return res.status(201).json({ sucess: true, msg: "user team saved" })
 }
 
 export const addPlayerTeam = async (req, res) => {
@@ -32,6 +32,6 @@ export const addPlayerTeam = async (req, res) => {
 
         await User.findOneAndUpdate({ username: req.session.user }, { team: newTeam, bidAmount: newBidAmount });
 
-        return res.status(200).json({ sucess: true, msg: "player saved to team" })
+        return res.status(201).json({ sucess: true, msg: "player saved to team" })
     }
 }

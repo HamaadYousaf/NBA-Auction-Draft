@@ -3,7 +3,7 @@ import { Room } from '../models/roomModel.js';
 export const getUsers = async (req, res) => {
     const room = await Room.findOne({ name: 'draft-room' });
     if (room) {
-        return res.status(200).json({ sucess: true, data: room.users });
+        return res.status(200).json({ sucess: true, data: room.users.length });
     } else {
         return res.status(200).json({ sucess: true, data: "" });
     }
@@ -51,7 +51,7 @@ export const setRunning = async (req, res) => {
 
 export const clearRunning = async (req, res) => {
     await Room.findOneAndUpdate({ name: "draft-room" }, { running: false });
-    return res.status(201).json({ sucess: true, msg: "ending draft" });
+    return res.status(200).json({ sucess: true, msg: "ending draft" });
 }
 
 export const getRunning = async (req, res) => {
