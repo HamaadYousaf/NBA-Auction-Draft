@@ -20,6 +20,10 @@ const userSchema = mongoose.Schema(
             type: String,
             required: true,
         },
+        bidAmount: {
+            type: Number,
+            default: 200
+        },
         team: {
             type: [teamSchema],
         },

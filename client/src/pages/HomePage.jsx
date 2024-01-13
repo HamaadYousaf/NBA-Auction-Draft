@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUsersRoom, getRunning } from '../services/draftService';
+import { getReq } from '../services/draftService';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -22,8 +22,8 @@ const HomePage = () => {
     useEffect(() => {
         const fetch = async () => {
             setIsLoading(true);
-            setNumUsers(await getUsersRoom());
-            setIsRunning(await getRunning());
+            setNumUsers(await getReq('/room/users'));
+            setIsRunning(await getReq('/room/run'));
             setIsLoading(false)
         }
 

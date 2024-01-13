@@ -1,14 +1,13 @@
 import { draftTimer, bidHandler } from '../utils/draftUtils.js';
 import { sessionMiddleware } from './session.js';
+import { User } from '../models/userModel.js';
 import moment from 'moment';
 
 export const socketMiddleware = (io) => {
     io.engine.use(sessionMiddleware);
-    let user;
 
     io.on('connection', socket => {
-        socket.on('joined-room', (room, username) => {
-            user = username;
+        socket.on('joined-room', (user) => {
             if (user) {
                 socket.join('draft-room');
                 socket.broadcast.to('draft-room').emit('user-joined');
@@ -16,7 +15,7 @@ export const socketMiddleware = (io) => {
             bidHandler(socket, io);
         });
 
-        socket.on('start-timer', () => {
+        socket.on('start-timer', async (user) => {
             if (user) {
                 socket.broadcast.to('draft-room').emit('run-draft');
                 io.to('draft-room').emit('feed', 'The host has started the draft', moment().format('h:mm a'));
@@ -26,19 +25,17 @@ export const socketMiddleware = (io) => {
         });
 
         socket.on('disconnect', () => {
-            if (user) {
-                socket.leave('draft-room');
-                socket.broadcast.to('draft-room').emit('user-joined');
-                socket.removeAllListeners();
-            }
-        })
+            socket.leave('draft-room');
+            socket.broadcast.to('draft-room').emit('user-joined');
+            socket.removeAllListeners();
+        });
 
-        socket.on('leave-room', () => {
+        socket.on('leave-room', (user) => {
             if (user) {
                 socket.leave('draft-room');
                 socket.broadcast.to('draft-room').emit('user-joined');
                 socket.removeAllListeners();
             }
-        })
+        });
     })
 }
