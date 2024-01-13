@@ -49,7 +49,7 @@ export const setPlayerCache = (player) => {
 export const setUsersRoom = () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3000/draft/users')
+        axios.post('http://localhost:3000/room/users')
             .then(resolve())
             .catch((err) => { return reject(err) });
     })
@@ -58,7 +58,7 @@ export const setUsersRoom = () => {
 export const getUsersRoom = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3000/draft/users')
+        axios.get('http://localhost:3000/room/users')
             .then(res => {
                 if (res.status === 200) {
                     if (res.data.data === null) {
@@ -75,7 +75,7 @@ export const getUsersRoom = async () => {
 export const leaveUser = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.put('http://localhost:3000/draft/users')
+        axios.put('http://localhost:3000/room/users')
             .then(res => {
                 if (res.status === 201) {
                     return resolve(true);
@@ -88,7 +88,7 @@ export const leaveUser = async () => {
 export const clearRoom = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.delete('http://localhost:3000/draft/users')
+        axios.delete('http://localhost:3000/room/users')
             .then(res => {
                 if (res.status === 200) {
                     return resolve(true);
@@ -101,7 +101,7 @@ export const clearRoom = async () => {
 export const setRunning = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.post('http://localhost:3000/draft/run')
+        axios.post('http://localhost:3000/room/run')
             .then(res => {
                 if (res.status === 201) {
                     return resolve(true);
@@ -114,7 +114,7 @@ export const setRunning = async () => {
 export const getRunning = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.get('http://localhost:3000/draft/run')
+        axios.get('http://localhost:3000/room/run')
             .then(res => {
                 if (res.status === 200) {
                     return resolve(res.data.data);
@@ -127,7 +127,7 @@ export const getRunning = async () => {
 export const clearRunning = async () => {
     return new Promise((resolve, reject) => {
         axios.defaults.withCredentials = true;
-        axios.put('http://localhost:3000/draft/run')
+        axios.put('http://localhost:3000/room/run')
             .then(res => {
                 if (res.status === 201) {
                     return resolve(true);

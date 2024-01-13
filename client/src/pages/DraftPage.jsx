@@ -144,7 +144,7 @@ const DraftPage = () => {
             {!isRunning ? (
                 <>
                     <span>Waiting for host to begin draft</span>
-                    {numUsers === 1 ? (
+                    {numUsers >= 1 ? (
                         <>
                             <button onClick={handleClick}>Start</button>
                         </>

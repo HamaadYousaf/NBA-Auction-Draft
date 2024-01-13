@@ -5,8 +5,6 @@ const router = express.Router();
 
 router.route('/time').get(draft.getTime).post(draft.postTime);
 router.route('/player').get(draft.getPlayer).post(draft.postPlayer);
-router.route('/users').get(draft.getUsers).post(draft.postUsers).delete(draft.clearUsers).put(draft.leaveUser);
-router.route('/run').get(draft.getRunning).post(draft.setRunning).put(draft.clearRunning);
 router.route('/bid').get(draft.getBid).post(draft.setBid).delete(draft.clearBid);
 
 export default router;
