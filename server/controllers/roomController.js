@@ -32,7 +32,6 @@ export const postUsers = async (req, res) => {
 
 export const clearUsers = async (req, res) => {
     await Room.findOneAndUpdate({ name: "draft-room" }, { users: [] });
-
     return res.status(200).json({ sucess: true, msg: "room cleared" });
 }
 

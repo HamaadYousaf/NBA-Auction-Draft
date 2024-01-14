@@ -170,7 +170,7 @@ const DraftPage = () => {
                         })
                     }
                 </div>
-                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} />
+                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player.name} />
             </div>
         </div>
     )
