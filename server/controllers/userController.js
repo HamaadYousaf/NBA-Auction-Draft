@@ -30,8 +30,19 @@ export const addPlayerTeam = async (req, res) => {
         const newTeam = [...userData.team, req.body.player];
         const newBidAmount = userData.bidAmount - req.body.bidData.bid;
 
-        await User.findOneAndUpdate({ username: req.session.user }, { team: newTeam, bidAmount: newBidAmount });
-
+        const x = await User.findOneAndUpdate({ username: req.session.user }, { team: newTeam, bidAmount: newBidAmount });
         return res.status(201).json({ sucess: true, msg: "player saved to team" })
+    }
+}
+
+export const getBidAmount = async (req, res) => {
+    if (!req.session.user) return res.status(404).json({ sucess: true, msg: "no user" });
+
+    const user = await User.findOne({ username: req.session.user });
+
+    if (user) {
+        return res.status(200).json({ sucess: true, data: user.bidAmount });
+    } else {
+        return res.status(404).json({ sucess: false, msg: "user not foud" });
     }
 }

@@ -85,16 +85,16 @@ const DraftPage = () => {
             socket.on('get-player', (player) => { postReq('/draft/player', { "player": player }); setPlayer(player) });
             socket.on('run-draft', () => setIsRunning(true));
             socket.on('feed', (msg, time) => {
-                const newFeed = [
+                const newFeed = new Set([
                     ...feed,
                     {
                         "msg": msg,
                         "time": time
 
                     }
-                ];
-                localStorage.setItem('feed', JSON.stringify(newFeed));
-                setFeed(newFeed);
+                ]);
+                localStorage.setItem('feed', JSON.stringify((Array.from(newFeed))));
+                setFeed(Array.from(newFeed));
             })
 
             socket.on('bid-update', (user, amount) => {
@@ -170,7 +170,7 @@ const DraftPage = () => {
                         })
                     }
                 </div>
-                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} />
+                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player.name} />
             </div>
         </div>
     )
