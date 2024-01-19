@@ -1,8 +1,17 @@
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import { useEffect, useState } from "react"
 import axios from 'axios'
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const RegisterPage = () => {
+export default function RegisterPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
@@ -26,7 +35,8 @@ const RegisterPage = () => {
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-
+        console.log(password)
+        console.log(password2)
         if (password === password2) {
             const user = { username, password };
 
@@ -47,36 +57,117 @@ const RegisterPage = () => {
     }
 
     return (
-        <>
-            <form onSubmit={handleSubmit}>
-                <label>Username:
-                    <input
-                        type="text"
-                        value={username}
+        <Container component="main" maxWidth="xs">
+            <CssBaseline />
+            <Box
+                sx={{
+                    marginTop: 8,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                }}
+            >
+                <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
+                </Avatar>
+                <Typography component="h1" variant="h5">
+                    Create Account
+                </Typography>
+                <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+                    <TextField
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="email"
+                        label="Email Address"
+                        name="email"
+                        autoComplete="email"
+                        autoFocus
                         onChange={(e) => setUsername(e.target.value)}
                     />
-                </label>
-                {loginFailed ? (<>Passwords do not match</>) : (<></>)}
-                <label>Password:
-                    <input
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-                </label>
-                {loginFailed ? (<>Passwords do not match</>) : (<></>)}
-                <label>Confirm Password:
-                    <input
-                        type="password"
-                        value={password2}
-                        onChange={(e) => setPassword2(e.target.value)}
-                    />
-                </label>
-                <input type="submit" value="Create Account" />
-            </form>
-            <span>Already have an account? <a href="/login">Login Here</a></span>
-        </>
-    )
+                    {loginFailed ? (
+                        <>
+                            <TextField
+                                error
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="password"
+                                label="Password"
+                                type="password"
+                                id="password"
+                                autoComplete="current-password"
+                                onChange={(e) => setPassword(e.target.value)}
+                            />
+                        </>
+                    )}
+                    {loginFailed ? (
+                        <>
+                            <TextField
+                                error
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="Confirm Password"
+                                label="Confirm Password"
+                                type="password"
+                                id="Confirm Password"
+                                autoComplete="current-password"
+                                onChange={(e) => setPassword2(e.target.value)}
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <TextField
+                                margin="normal"
+                                required
+                                fullWidth
+                                name="Confirm Password"
+                                label="Confirm Password"
+                                type="password"
+                                id="Confirm Password"
+                                autoComplete="current-password"
+                                onChange={(e) => setPassword2(e.target.value)}
+                            />
+                        </>
+                    )}
+                    {loginFailed ? (
+                        <>
+                            <Typography variant="subtitle2" color={'red'}>
+                                *Passwords do not match
+                            </Typography>
+                        </>
+                    ) : (<></>)}
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        sx={{ mt: 3, mb: 2 }}
+                    >
+                        Create
+                    </Button>
+                    <Grid container justifyContent={'center'}>
+                        <Grid item>
+                            <Link href="/login" variant="body2">
+                                {"Already have an account? Sign in"}
+                            </Link>
+                        </Grid>
+                    </Grid>
+                </Box>
+            </Box>
+        </Container >
+    );
 }
-
-export default RegisterPage
