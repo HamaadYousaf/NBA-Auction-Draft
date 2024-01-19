@@ -55,7 +55,7 @@ Bid.propTypes = {
     user: PropTypes.string,
     currBid: PropTypes.number,
     currBidder: PropTypes.string,
-    player: PropTypes.string
+    player: PropTypes.object
 };
 
 export default Bid

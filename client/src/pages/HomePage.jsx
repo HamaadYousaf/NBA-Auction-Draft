@@ -2,6 +2,7 @@ import axios from 'axios'
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getReq } from '../services/draftService';
+import DisplayTeams from '../components/DisplayTeams';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -53,6 +54,7 @@ const HomePage = () => {
                     </>
                 )
             }
+            <DisplayTeams />
         </div>
     )
 }

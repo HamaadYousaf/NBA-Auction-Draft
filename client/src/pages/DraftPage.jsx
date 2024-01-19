@@ -1,10 +1,12 @@
 import axios from 'axios';
 import { useState, useEffect, useContext, useRef } from 'react'
-import { v4 as uuidv4 } from 'uuid';
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
 import { getReq, postReq, delReq, getBidCache, leaveUser } from '../services/draftService.js';
 import Bid from '../components/Bid.jsx';
+import Feed from '../components/Feed.jsx';
+import Player from '../components/Player.jsx';
+import DraftTeam from '../components/DraftTeam.jsx';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -107,10 +109,20 @@ const DraftPage = () => {
                 socket.emit('handle-bid', user.current, bidData);
             });
 
+            socket.on('handle-complete', () => {
+                setPlayer({
+                    "name": "...",
+                    "image": "...",
+                    "team": "...",
+                    "pos": "..."
+                });
+            })
+
             socket.on('draft-complete', async () => {
                 if (await delReq('/room/users') && await delReq('/room/run') && await postReq('/user/team') && await delReq('/draft/bid')) {
                     localStorage.clear();
                     setIsRunning(false);
+                    socket.removeAllListeners();
                     navigate('/home');
                 }
             });
@@ -150,27 +162,12 @@ const DraftPage = () => {
                         </>
                     ) : (<></>)}
                     <span>Players in draft room = {numUsers}</span>
-                </>) : (
-                <>
-                    <span>Timer = {isLoading ? (<>...</>) : (<>{timer}</>)}</span>
-                    <span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <span><img src={player.image} alt={player.name}></img></span>
-                    <span>Player: {isLoading ? (<>...</>) : (<>{player.name}</>)}&nbsp;&nbsp;&nbsp;</span>
-                    <span>
-                        Team: {isLoading ? (<>...</>) : (<>{player.team}</>)}&nbsp;
-                        Position: {isLoading ? (<>...</>) : (<>{player.pos}</>)}&nbsp;
-                    </span>
-                </>)
+                </>) : (<><Player isLoading={isLoading} timer={parseInt(timer)} player={player} /></>)
             }
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
-                    {
-                        feed.map((log) => {
-                            return (<span key={uuidv4()}>{log.msg}&nbsp;&nbsp;{log.time}</span>)
-                        })
-                    }
-                </div>
-                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player.name} />
+                <DraftTeam player={player} />
+                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
+                <Feed feed={feed} />
             </div>
         </div>
     )

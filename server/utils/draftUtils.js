@@ -20,6 +20,7 @@ export const draftTimer = async (socket, io) => {
             await sleep(3000);
         }
         io.to('draft-room').emit('feed', 'Draft complete', moment().format('h:mm a'));
+        io.to('draft-room').emit('handle-complete');
         await sleep(5000);
         io.to('draft-room').emit('draft-complete');
     })
