@@ -165,9 +165,14 @@ const DraftPage = () => {
                 </>) : (<><Player isLoading={isLoading} timer={parseInt(timer)} player={player} /></>)
             }
             <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <DraftTeam player={player} />
-                <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
-                <Feed feed={feed} />
+                {isLoggedIn ? (
+                    <>
+                        <DraftTeam player={player} />
+                        <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
+                        <Feed feed={feed} />
+                    </>
+                ) : (<></>)}
+
             </div>
         </div>
     )

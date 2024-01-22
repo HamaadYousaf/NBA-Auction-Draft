@@ -46,3 +46,8 @@ export const postRegister = async (req, res) => {
     }
     return res.status(404).json({ sucess: false, data: "error creating account" });
 }
+
+export const logout = async (req, res) => {
+    req.session.destroy();
+    return res.status(201).json({ sucess: true, data: true });
+}
