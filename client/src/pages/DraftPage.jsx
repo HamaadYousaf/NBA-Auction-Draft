@@ -7,6 +7,7 @@ import Bid from '../components/Bid.jsx';
 import Feed from '../components/Feed.jsx';
 import Player from '../components/Player.jsx';
 import DraftTeam from '../components/DraftTeam.jsx';
+import ResponsiveDrawer from '../components/AppBarDraft.jsx';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -152,28 +153,33 @@ const DraftPage = () => {
 
     return (
         <div>
-            <span><button onClick={handleLeave}>Leave Room</button></span>
-            {!isRunning ? (
-                <>
-                    <span>Waiting for host to begin draft</span>
-                    {numUsers >= 1 ? (
-                        <>
-                            <button onClick={handleClick}>Start</button>
-                        </>
-                    ) : (<></>)}
-                    <span>Players in draft room = {numUsers}</span>
-                </>) : (<><Player isLoading={isLoading} timer={parseInt(timer)} player={player} /></>)
-            }
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                {isLoggedIn ? (
+            <ResponsiveDrawer
+                page={
                     <>
-                        <DraftTeam player={player} />
-                        <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
-                        <Feed feed={feed} />
+                        <span><button onClick={handleLeave}>Leave Room</button></span>
+                        {!isRunning ? (
+                            <>
+                                <span>Waiting for host to begin draft</span>
+                                {numUsers >= 1 ? (
+                                    <>
+                                        <button onClick={handleClick}>Start</button>
+                                    </>
+                                ) : (<></>)}
+                                <span>Players in draft room = {numUsers}</span>
+                            </>) : (<><Player isLoading={isLoading} timer={parseInt(timer)} player={player} /></>)
+                        }
+                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            {isLoggedIn ? (
+                                <>
+                                    <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
+                                </>
+                            ) : (<></>)}
+                        </div>
                     </>
-                ) : (<></>)}
-
-            </div>
+                }
+                draftTeam={<DraftTeam player={player} />}
+                feed={<Feed feed={feed} />}
+            />
         </div>
     )
 }
