@@ -9,10 +9,16 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import Bid from './Bid.jsx';
+import Player from './Player.jsx';
 
-const drawerWidth = 240;
 
-function ResponsiveDrawer(props) {
+function DraftView(props) {
+
+    const mobile = useMediaQuery('(min-width:400px)');
+    const drawerWidth = mobile ? (350) : (250);
+
     const { window } = props;
     const [mobileOpen, setMobileOpen] = React.useState(false);
     const [isClosing, setIsClosing] = React.useState(false);
@@ -42,7 +48,6 @@ function ResponsiveDrawer(props) {
         </div>
     );
 
-    // Remove this const when copying and pasting into your project.
     const container = window !== undefined ? () => window().document.body : undefined;
 
     return (
@@ -61,12 +66,12 @@ function ResponsiveDrawer(props) {
                         aria-label="open drawer"
                         edge="start"
                         onClick={handleDrawerToggle}
-                        sx={{ mr: 2, display: { md: 'none' } }}
+                        sx={{ mr: 1, display: { md: 'none' } }}
                     >
                         <MenuIcon />
                     </IconButton>
                     <Typography variant="h6" noWrap component="div">
-                        Responsive drawer
+                        NBA Draft
                     </Typography>
                 </Toolbar>
             </AppBar>
@@ -108,21 +113,48 @@ function ResponsiveDrawer(props) {
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
-                {props.page}
+                <span><button onClick={props.handleLeave}>Leave Room</button></span>
+                {!props.isRunning ? (
+                    <>
+                        <span>Waiting for host to begin draft</span>
+                        {props.numUsers >= 1 ? (
+                            <>
+                                <button onClick={props.handleClick}>Start</button>
+                            </>
+                        ) : (<></>)}
+                        <span>Players in draft room = {props.numUsers}</span>
+                    </>) : (<><Player isLoading={props.isLoading} timer={parseInt(props.timer)} player={props.player} /></>)
+                }
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                    {props.isLoggedIn ? (
+                        <>
+                            <Bid socket={props.socket} user={props.user} currBid={props.bidData.bid} currBidder={props.bidData.bidder} player={props.player} />
+                        </>
+                    ) : (<></>)}
+                </div>
             </Box>
         </Box>
     );
 }
 
-ResponsiveDrawer.propTypes = {
-    /**
-     * Injected by the documentation to work in an iframe.
-     * Remove this when copying and pasting into your project.
-     */
+DraftView.propTypes = {
     window: PropTypes.func,
     page: PropTypes.object,
     feed: PropTypes.object,
+    socket: PropTypes.object,
+    user: PropTypes.string,
+    bidData: PropTypes.object,
     draftTeam: PropTypes.object,
+    handleLeave: PropTypes.func,
+    handleClick: PropTypes.func,
+    isRunning: PropTypes.bool,
+    numUsers: PropTypes.number,
+    isLoading: PropTypes.bool,
+    isLoggedIn: PropTypes.bool,
+    timer: PropTypes.number,
+    player: PropTypes.object,
+
+
 };
 
-export default ResponsiveDrawer;
+export default DraftView;

@@ -10,7 +10,7 @@ import { postReq } from '../services/draftService';
 import { useNavigate } from "react-router-dom";
 import PropTypes from 'prop-types';
 
-export default function ButtonAppBar({ page }) {
+export default function Header({ page }) {
     const navigate = useNavigate();
 
     const handleClick = async () => {
@@ -47,7 +47,7 @@ export default function ButtonAppBar({ page }) {
     );
 }
 
-ButtonAppBar.propTypes = {
+Header.propTypes = {
     page: PropTypes.string,
 };
 

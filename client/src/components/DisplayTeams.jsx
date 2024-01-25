@@ -34,26 +34,31 @@ const DisplayTeams = () => {
 
     return (
         <div>
-            <Box sx={{ minWidth: 120, mb: 2 }}>
-                <FormControl fullWidth>
-                    <InputLabel >Team</InputLabel>
-                    <Select
-                        value={teamNum}
-                        label="Team"
-                        onChange={handleChange}
-                        sx={{ width: "100px" }}
-                    >
-                        {
-                            teams.map((row) => {
-                                let num = teams.indexOf(row);
-                                return (
-                                    <MenuItem value={num} key={uuidv4()}>Team {num + 1}</MenuItem>
-                                )
-                            })
-                        }
-                    </Select>
-                </FormControl>
-            </Box>
+            {
+                teams.length != 0 ? (
+                    <Box sx={{ minWidth: 120, mb: 2 }}>
+                        <FormControl fullWidth>
+                            <InputLabel >Team</InputLabel>
+                            <Select
+                                value={teamNum}
+                                label="Team"
+                                onChange={handleChange}
+                                sx={{ width: "100px" }}
+                            >
+                                {
+                                    teams.map((row) => {
+                                        let num = teams.indexOf(row);
+                                        return (
+                                            <MenuItem value={num} key={uuidv4()}>Team {num + 1}</MenuItem>
+                                        )
+                                    })
+                                }
+                            </Select>
+                        </FormControl>
+                    </Box>
+                ) : (<></>)
+            }
+
             <TableContainer component={Paper}>
                 <Table aria-label="simple table">
                     <TableHead >
@@ -65,26 +70,30 @@ const DisplayTeams = () => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {teams[teamNum].map((row) => (
-                            <TableRow
-                                key={uuidv4()}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-                                <TableCell component="th" scope="row">
-                                    <ImageList sx={{ width: { xs: 200, sm: 300 } }}>
-                                        <ImageListItem key={row.image}>
-                                            <img
-                                                src={row.image}
-                                                alt={row.name}
-                                            />
-                                        </ImageListItem>
-                                    </ImageList>
-                                </TableCell>
-                                <TableCell align="center">{row.name}</TableCell>
-                                <TableCell align="center">{row.team}</TableCell>
-                                <TableCell align="center">{row.pos}</TableCell>
-                            </TableRow>
-                        ))}
+                        {
+                            teams.length != 0 ? (
+                                teams[teamNum].map((row) => (
+                                    <TableRow
+                                        key={uuidv4()}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                        <TableCell component="th" scope="row">
+                                            <ImageList sx={{ width: { xs: 200, sm: 300 } }}>
+                                                <ImageListItem key={row.image}>
+                                                    <img
+                                                        src={row.image}
+                                                        alt={row.name}
+                                                    />
+                                                </ImageListItem>
+                                            </ImageList>
+                                        </TableCell>
+                                        <TableCell align="center">{row.name}</TableCell>
+                                        <TableCell align="center">{row.team}</TableCell>
+                                        <TableCell align="center">{row.pos}</TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (<></>)
+                        }
                     </TableBody>
                 </Table>
             </TableContainer>

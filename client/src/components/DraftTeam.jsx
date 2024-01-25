@@ -1,3 +1,6 @@
+import Stack from '@mui/material/Stack';
+import Paper from '@mui/material/Paper';
+import Box from '@mui/material/Box';
 import { useEffect, useState } from "react";
 import { getReq } from "../services/draftService.js";
 import PropTypes from 'prop-types';
@@ -22,12 +25,19 @@ const DraftTeam = ({ player }) => {
     }, [player]);
 
     return (
-        <div style={{ backgroundColor: "#EEEEEE", display: "grid" }}>
-            {team.map((draftedPlayer) => {
-                return (<span key={uuidv4()}>{draftedPlayer}</span>)
+        <Box >
+            <Stack>
+                <Paper elevation={3} sx={{ width: '100%', borderRadius: 0, textAlign: "center", py: 1, fontSize: 18, fontWeight: 'bold' }}>
+                    Your Team
+                </Paper>
+                {
+                    team.map((draftedPlayer) => {
+                        return (<Paper elevation={3} sx={{ width: '100%', borderRadius: 0, textAlign: "center", py: 1 }} key={uuidv4()}>{draftedPlayer}</Paper>)
 
-            })}
-        </div>
+                    })
+                }
+            </Stack>
+        </Box >
     )
 }
 

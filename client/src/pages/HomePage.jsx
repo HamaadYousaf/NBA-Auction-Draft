@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getReq } from '../services/draftService';
 import DisplayTeams from '../components/DisplayTeams';
-import ButtonAppBar from '../components/AppBar';
+import Header from '../components/Header';
 
 const HomePage = () => {
     const navigate = useNavigate();
@@ -42,7 +42,7 @@ const HomePage = () => {
 
     return (
         <>
-            <ButtonAppBar />
+            <Header />
             <Container sx={{ my: 8 }}>
                 <Typography
                     component="h1"
