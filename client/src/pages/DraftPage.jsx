@@ -3,10 +3,9 @@ import { useState, useEffect, useContext, useRef } from 'react'
 import { SocketContext } from '../socketConfig.jsx';
 import { useNavigate } from "react-router-dom";
 import { getReq, postReq, delReq, getBidCache, leaveUser } from '../services/draftService.js';
-import Bid from '../components/Bid.jsx';
 import Feed from '../components/Feed.jsx';
-import Player from '../components/Player.jsx';
 import DraftTeam from '../components/DraftTeam.jsx';
+import DraftView from '../components/DraftView.jsx';
 
 const DraftPage = () => {
     const socket = useContext(SocketContext);
@@ -28,7 +27,7 @@ const DraftPage = () => {
         JSON.parse(localStorage.getItem('feed')) ||
         [
             {
-                "msg": "Welcome to the draft room",
+                "msg": "",
                 "time": ""
             },
         ]);
@@ -152,28 +151,21 @@ const DraftPage = () => {
 
     return (
         <div>
-            <span><button onClick={handleLeave}>Leave Room</button></span>
-            {!isRunning ? (
-                <>
-                    <span>Waiting for host to begin draft</span>
-                    {numUsers >= 1 ? (
-                        <>
-                            <button onClick={handleClick}>Start</button>
-                        </>
-                    ) : (<></>)}
-                    <span>Players in draft room = {numUsers}</span>
-                </>) : (<><Player isLoading={isLoading} timer={parseInt(timer)} player={player} /></>)
-            }
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                {isLoggedIn ? (
-                    <>
-                        <DraftTeam player={player} />
-                        <Bid socket={socket} user={user.current} currBid={bidData.bid} currBidder={bidData.bidder} player={player} />
-                        <Feed feed={feed} />
-                    </>
-                ) : (<></>)}
-
-            </div>
+            <DraftView
+                handleLeave={handleLeave}
+                handleClick={handleClick}
+                isRunning={isRunning}
+                numUsers={numUsers}
+                isLoading={isLoading}
+                isLoggedIn={isLoggedIn}
+                timer={parseInt(timer)}
+                player={player}
+                socket={socket}
+                user={user.current}
+                bidData={bidData}
+                draftTeam={<DraftTeam player={player} />}
+                feed={<Feed feed={feed} />}
+            />
         </div>
     )
 }
