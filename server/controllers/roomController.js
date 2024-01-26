@@ -9,6 +9,15 @@ export const getUsers = async (req, res) => {
     }
 }
 
+export const getUsersNames = async (req, res) => {
+    const room = await Room.findOne({ name: 'draft-room' });
+    if (room) {
+        return res.status(200).json({ sucess: true, data: room.users });
+    } else {
+        return res.status(200).json({ sucess: true, data: "" });
+    }
+}
+
 export const postUsers = async (req, res) => {
     if (!req.session.user) return res.status(200).json({ sucess: true, msg: "no user" });
 

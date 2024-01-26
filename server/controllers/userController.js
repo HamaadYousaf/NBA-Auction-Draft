@@ -14,12 +14,16 @@ export const getUserTeams = async (req, res) => {
 
 export const setUserTeams = async (req, res) => {
     if (!req.session.user) return res.status(404).json({ sucess: true, msg: "no user" });
-
     const userData = await User.findOne({ username: req.session.user });
-    const newUserTeams = [...userData.userTeams, userData.team];
-    await User.findOneAndUpdate({ username: req.session.user }, { team: [], userTeams: newUserTeams, bidAmount: 200 });
 
-    return res.status(201).json({ sucess: true, msg: "user team saved" })
+    if (!userData.team.length == 0) {
+        const newUserTeams = [...userData.userTeams, userData.team];
+        await User.findOneAndUpdate({ username: req.session.user }, { team: [], userTeams: newUserTeams, bidAmount: 200 });
+
+        return res.status(201).json({ sucess: true, msg: "user team saved" })
+    }
+
+    return res.status(201).json({ sucess: true, msg: "Empty team" })
 }
 
 export const addPlayerTeam = async (req, res) => {

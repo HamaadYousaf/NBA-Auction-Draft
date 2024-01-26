@@ -43,7 +43,7 @@ const DisplayTeams = () => {
                                 value={teamNum}
                                 label="Team"
                                 onChange={handleChange}
-                                sx={{ width: "100px" }}
+                                sx={{ width: "120px" }}
                             >
                                 {
                                     teams.map((row) => {
