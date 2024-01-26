@@ -11,7 +11,7 @@ const Feed = ({ feed }) => {
 
     return (
         <Paper elevation={1}>
-            <Stack spacing={0.5} sx={{ fontSize: { fontSize }, height: '60vh', overflowY: "scroll" }}>
+            <Stack spacing={0} sx={{ fontSize: { fontSize }, height: '60vh', overflowY: "scroll" }}>
                 <Box sx={{ display: 'flex', justifyContent: "space-between", fontWeight: "bold", bgcolor: "#eeeeee" }} key={uuidv4()}>
                     <span style={{ width: 250, whiteSpace: 'pre-wrap' }}>Welcome to the draft room</span>
                 </Box>

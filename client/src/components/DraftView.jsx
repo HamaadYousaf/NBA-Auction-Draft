@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Bid from './Bid.jsx';
 import Player from './Player.jsx';
+import DraftHome from './DraftHome.jsx';
 
 
 function DraftView(props) {
@@ -113,27 +114,25 @@ function DraftView(props) {
                 sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
             >
                 <Toolbar />
-                <span><button onClick={props.handleLeave}>Leave Room</button></span>
-                {!props.isRunning ? (
-                    <>
-                        <span>Waiting for host to begin draft</span>
-                        {props.numUsers >= 1 ? (
+                {props.isRunning ?
+                    (
+                        props.player.name === 'complete' ? (
+                            <Box sx={{ display: 'flex', justifyContent: 'center', mt: '15vh' }}>
+                                <Typography variant={mobile ? ('h3') : ('h4')}>Draft Complete</Typography>
+                            </Box >
+                        ) : (
                             <>
-                                <button onClick={props.handleClick}>Start</button>
+                                <Player isLoading={props.isLoading} timer={parseInt(props.timer)} player={props.player} />
+                                <Bid socket={props.socket} user={props.user} currBid={props.bidData.bid} currBidder={props.bidData.bidder} player={props.player} />
                             </>
-                        ) : (<></>)}
-                        <span>Players in draft room = {props.numUsers}</span>
-                    </>) : (<><Player isLoading={props.isLoading} timer={parseInt(props.timer)} player={props.player} /></>)
+                        )
+                    )
+                    : (
+                        <DraftHome numUsers={props.numUsers} handleClick={props.handleClick} handleLeave={props.handleLeave} />
+                    )
                 }
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    {props.isLoggedIn ? (
-                        <>
-                            <Bid socket={props.socket} user={props.user} currBid={props.bidData.bid} currBidder={props.bidData.bidder} player={props.player} />
-                        </>
-                    ) : (<></>)}
-                </div>
             </Box>
-        </Box>
+        </Box >
     );
 }
 
@@ -153,8 +152,6 @@ DraftView.propTypes = {
     isLoggedIn: PropTypes.bool,
     timer: PropTypes.number,
     player: PropTypes.object,
-
-
 };
 
 export default DraftView;
