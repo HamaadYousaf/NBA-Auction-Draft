@@ -9,6 +9,7 @@ import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
 import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Bid from './Bid.jsx';
 import Player from './Player.jsx';
@@ -122,8 +123,16 @@ function DraftView(props) {
                             </Box >
                         ) : (
                             <>
-                                <Player isLoading={props.isLoading} timer={parseInt(props.timer)} player={props.player} />
-                                <Bid socket={props.socket} user={props.user} currBid={props.bidData.bid} currBidder={props.bidData.bidder} player={props.player} />
+                                {props.isLoading ? (
+                                    <Box sx={{ display: "flex", justifyContent: "center", mt: '15vh' }}>
+                                        <CircularProgress size='5rem' />
+                                    </Box>
+                                ) : (
+                                    <>
+                                        <Player isLoading={props.isLoading} timer={parseInt(props.timer)} player={props.player} />
+                                        <Bid socket={props.socket} user={props.user} currBid={props.bidData.bid} currBidder={props.bidData.bidder} player={props.player} />
+                                    </>
+                                )}
                             </>
                         )
                     )

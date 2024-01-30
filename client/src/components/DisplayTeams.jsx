@@ -79,7 +79,7 @@ const DisplayTeams = () => {
                                     >
                                         <TableCell component="th" scope="row">
                                             <ImageList sx={{ width: { xs: 200, sm: 300 } }}>
-                                                <ImageListItem key={row.image}>
+                                                <ImageListItem key={row.name}>
                                                     <img
                                                         src={row.image}
                                                         alt={row.name}
