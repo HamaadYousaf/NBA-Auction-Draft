@@ -19,7 +19,7 @@ const DraftHome = ({ numUsers, handleClick, handleLeave }) => {
         }
 
         fetch();
-    }, [])
+    }, [numUsers])
 
     return (
         <Container sx={{ mt: 2, px: 0 }}>
