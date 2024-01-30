@@ -3,19 +3,21 @@ import { createRequire } from 'node:module';
 const players = createRequire(import.meta.url)('../../config/players.json');
 
 let player = '';
+let time = 30;
 
 export const draftTimer = async (socket, io) => {
     socket.on('host', async () => {
         for (let i = 1; i < 6; i++) {
-            let time = 10;
             player = players[`player${i}`];
             io.to('draft-room').emit('get-player', player);
             io.to('draft-room').emit('timer', time);
 
-            for (let j = 0; j < 6; j++) {
-                io.to('draft-room').emit('timer', time--);
+            while (time > 0) {
+                time--;
+                io.to('draft-room').emit('timer', time);
                 await sleep(1000);
             }
+            time = 30;
             io.to('draft-room').emit('round-complete');
             await sleep(3000);
         }
@@ -28,6 +30,9 @@ export const draftTimer = async (socket, io) => {
 
 export const bidHandler = async (socket, io) => {
     socket.on('bid', (user, amount) => {
+        if (time < 10) {
+            time += 10;
+        }
         io.to('draft-room').emit('bid-update', user, amount);
     })
 
