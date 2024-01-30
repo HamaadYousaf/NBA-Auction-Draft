@@ -33,7 +33,7 @@ const Bid = ({ socket, user, currBid, currBidder, player }) => {
     }
 
     const handleBid = () => {
-        if (bidAmount - bid >= 0) {
+        if (bidAmount - bid >= 0 && bid > currBid) {
             socket.emit('bid', user, bid);
         }
     }
