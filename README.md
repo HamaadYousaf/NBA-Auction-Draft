@@ -20,6 +20,8 @@ A live NBA draft simulation where users can bid on players against other users t
 
 ### Mobile
 
+<span>
 <img src="./demo/homeMobile.png" alt="drawing" width="231"/>
 <img src="./demo/draftMobile.png" alt="drawing" width="230"/>
 <img src="./demo/draftMobile2.png" alt="drawing" width="235"/>
+</span>
